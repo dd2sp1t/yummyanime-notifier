@@ -1,0 +1,61 @@
+# ==============================
+# .NET / C#
+# ==============================
+
+## Build results
+bin/
+obj/
+[Bb]uild/
+[Bb]uilds/
+
+## .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## ASP.NET Core
+appsettings.Development.json
+appsettings.Local.json
+
+## Rider / VS / VS Code
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Logs
+*.log
+
+## Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+## Entity Framework
+## **/Migrations/*Snapshot.cs
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## Environment variables
+.env
+.env.*
+
+## Local DB files
+*.db
