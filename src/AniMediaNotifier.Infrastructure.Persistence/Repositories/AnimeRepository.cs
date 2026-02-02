@@ -16,7 +16,9 @@ internal class AnimeRepository : IAnimeRepository
 
     public async Task<Anime> FindBySourceLinkAsync(string sourceLink, CancellationToken cancellationToken)
     {
-        var dbAnime = await _dbContext.Animes.SingleOrDefaultAsync(a => a.SourceLink == sourceLink, cancellationToken);
+        var dbAnime = await _dbContext.Animes
+            .AsNoTracking()
+            .SingleOrDefaultAsync(a => a.SourceLink == sourceLink, cancellationToken);
 
         if (dbAnime == null)
         {
@@ -38,7 +40,9 @@ internal class AnimeRepository : IAnimeRepository
 
     public async Task<Anime> FindByRuNameAsync(string ruName, CancellationToken cancellationToken)
     {
-        var dbAnime = await _dbContext.Animes.SingleOrDefaultAsync(a => a.RuName == ruName, cancellationToken);
+        var dbAnime = await _dbContext.Animes
+            .AsNoTracking()
+            .SingleOrDefaultAsync(a => a.RuName == ruName, cancellationToken);
 
         if (dbAnime == null)
         {
@@ -60,7 +64,9 @@ internal class AnimeRepository : IAnimeRepository
 
     public async Task<Anime> GetAsync(Guid id, CancellationToken cancellationToken)
     {
-        var dbAnime = await _dbContext.Animes.SingleAsync(a => a.Id == id, cancellationToken);
+        var dbAnime = await _dbContext.Animes
+            .AsNoTracking()
+            .SingleAsync(a => a.Id == id, cancellationToken);
 
         return Anime.FromExisting(
             dbAnime.Id,

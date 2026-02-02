@@ -4,6 +4,7 @@ using AniMediaNotifier.Application.AniMedia.Parsers;
 using AniMediaNotifier.Application.AniMedia.Parsers.Models;
 using AniMediaNotifier.Application.Events;
 using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Options;
 
@@ -15,20 +16,20 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
     private readonly IAniMediaClient _aniMediaClient;
     private readonly IEpisodeWidgetParser _episodeWidgetParser;
     private readonly IAnimeRepository _animeRepository;
-    private readonly IEventBus _eventBus;
+    private readonly IOutboxMessageRepository _outboxMessageRepository;
 
     public CheckNewEpisodesHandler(
         IOptions<AniMediaSiteData> options,
         IAniMediaClient aniMediaClient,
         IEpisodeWidgetParser episodeWidgetParser,
         IAnimeRepository animeRepository,
-        IEventBus eventBus)
+        IOutboxMessageRepository outboxMessageRepository)
     {
         _aniMediaSiteData = options.Value;
         _aniMediaClient = aniMediaClient;
         _episodeWidgetParser = episodeWidgetParser;
         _animeRepository = animeRepository;
-        _eventBus = eventBus;
+        _outboxMessageRepository = outboxMessageRepository;
     }
 
     public async Task<Unit> Handle(CheckNewEpisodesCommand request, CancellationToken cancellationToken)
@@ -50,17 +51,17 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
                 a.TotalEpisodeCount
             });
 
-        var tasks = joined
+        var outboxMessages = joined
             .Where(j => j.EpisodeNumber > j.ReleasedEpisodeCount)
             .Select(j =>
             {
                 var @event = new NewEpisodeDetectedEvent(j.AnimeId, j.EpisodeNumber);
 
-                return _eventBus.TryPublishAsync(@event, cancellationToken);
+                return OutboxMessage.Create(@event);
             })
             .ToArray();
 
-        await Task.WhenAll(tasks);
+        await _outboxMessageRepository.AddRangeAsync(outboxMessages, cancellationToken);
 
         return Unit.Value;
     }

@@ -22,9 +22,9 @@ public class Subscription
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
-    public void Restore(AnimeStatusEnum animeStatus)
+    public void Restore(AnimeStatus animeStatus)
     {
-        if (animeStatus == AnimeStatusEnum.Finished)
+        if (animeStatus == AnimeStatus.Finished)
         {
             throw new AnimeAlreadyFinishedException(AnimeId);
         }
@@ -38,9 +38,9 @@ public class Subscription
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
-    public static Subscription Create(Guid userId, Guid animeId, AnimeStatusEnum animeStatus)
+    public static Subscription Create(Guid userId, Guid animeId, AnimeStatus animeStatus)
     {
-        if (animeStatus == AnimeStatusEnum.Finished)
+        if (animeStatus == AnimeStatus.Finished)
         {
             throw new AnimeAlreadyFinishedException(animeId);
         }

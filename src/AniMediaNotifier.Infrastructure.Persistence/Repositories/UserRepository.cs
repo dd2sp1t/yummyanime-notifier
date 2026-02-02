@@ -17,6 +17,7 @@ internal class UserRepository : IUserRepository
     public async Task<User> GetOrCreateByTelegramUserIdAsync(long telegramUserId, CancellationToken cancellationToken)
     {
         var dbUser = await _dbContext.Users
+            .AsNoTracking()
             .Include(u => u.Subscriptions)
             .SingleOrDefaultAsync(u => u.TelegramUserId == telegramUserId, cancellationToken);
 
@@ -40,6 +41,7 @@ internal class UserRepository : IUserRepository
     public async Task<User> FindByTelegramUserIdAsync(long telegramUserId, CancellationToken cancellationToken)
     {
         var dbUser = await _dbContext.Users
+            .AsNoTracking()
             .Include(u => u.Subscriptions)
             .SingleAsync(u => u.TelegramUserId == telegramUserId, cancellationToken);
 

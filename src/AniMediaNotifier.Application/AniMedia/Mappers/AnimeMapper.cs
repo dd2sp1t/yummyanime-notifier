@@ -19,26 +19,26 @@ public class AnimeMapper
             parsed.TotalEpisodeCount);
     }
 
-    private static AnimeTypeEnum MapType(string raw)
+    private static AnimeType MapType(string raw)
     {
         return raw switch
         {
-            "ТВ-сериал" => AnimeTypeEnum.TvSerial,
-            "ONA" => AnimeTypeEnum.Ona,
-            "OVA" => AnimeTypeEnum.Ova,
-            "Фильм" => AnimeTypeEnum.Movie,
-            "Компиляция" => AnimeTypeEnum.Compilation,
+            "ТВ-сериал" => AnimeType.TvSerial,
+            "ONA" => AnimeType.Ona,
+            "OVA" => AnimeType.Ova,
+            "Фильм" => AnimeType.Movie,
+            "Компиляция" => AnimeType.Compilation,
             _ => throw new AnimeMappingException($"Unknown anime type: '{raw}'")
         };
     }
 
-    private static AnimeStatusEnum MapStatus(string raw)
+    private static AnimeStatus MapStatus(string raw)
     {
         return raw switch
         {
-            "Анонсы" => AnimeStatusEnum.Preview,
-            "Онгоинги" => AnimeStatusEnum.Ongoing,
-            "Завершенные" => AnimeStatusEnum.Finished,
+            "Анонсы" => AnimeStatus.Preview,
+            "Онгоинги" => AnimeStatus.Ongoing,
+            "Завершенные" => AnimeStatus.Finished,
             _ => throw new AnimeMappingException($"Unknown anime status: '{raw}'")
         };
     }

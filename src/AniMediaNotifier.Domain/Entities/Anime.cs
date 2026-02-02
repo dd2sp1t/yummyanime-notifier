@@ -11,8 +11,8 @@ public class Anime
     public string OriginalName { get; private set; }
     public string RuName { get; private set; }
     public int Year { get; private set; }
-    public AnimeTypeEnum Type { get; private set; }
-    public AnimeStatusEnum Status { get; private set; }
+    public AnimeType Type { get; private set; }
+    public AnimeStatus Status { get; private set; }
     public int ReleasedEpisodeCount { get; private set; }
     public int? TotalEpisodeCount { get; private set; }
 
@@ -27,13 +27,13 @@ public class Anime
 
         if (TotalEpisodeCount.HasValue && ReleasedEpisodeCount >= TotalEpisodeCount)
         {
-            Status = AnimeStatusEnum.Finished;
+            Status = AnimeStatus.Finished;
         }
 
         return true;
     }
 
-    public bool IsFinished => Status == AnimeStatusEnum.Finished;
+    public bool IsFinished => Status == AnimeStatus.Finished;
 
     #region Create methods
 
@@ -45,8 +45,8 @@ public class Anime
         string originalName,
         string ruName,
         int year,
-        AnimeTypeEnum type,
-        AnimeStatusEnum status,
+        AnimeType type,
+        AnimeStatus status,
         int releasedEpisodeCount,
         int? totalEpisodeCount)
     {
@@ -80,12 +80,12 @@ public class Anime
             throw new InvalidAnimeStateException("Year is invalid");
         }
 
-        if (type == AnimeTypeEnum.None)
+        if (type == AnimeType.None)
         {
             throw new InvalidAnimeStateException("Anime type is not specified");
         }
 
-        if (status == AnimeStatusEnum.None)
+        if (status == AnimeStatus.None)
         {
             throw new InvalidAnimeStateException("Anime status is not specified");
         }
@@ -114,8 +114,8 @@ public class Anime
         string originalName,
         string ruName,
         int year,
-        AnimeTypeEnum type,
-        AnimeStatusEnum status,
+        AnimeType type,
+        AnimeStatus status,
         int releasedEpisodeCount,
         int? totalEpisodeCount)
     {

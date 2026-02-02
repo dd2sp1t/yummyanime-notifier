@@ -15,16 +15,21 @@ public class MassTransitEventBus : IEventBus
         _logger = logger;
     }
 
-    public async Task TryPublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken)
-        where TEvent : Application.Events.Event
+    public async Task<bool> TryPublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken)
+        where TEvent : Domain.Events.Event
     {
+        var published = false;
+
         try
         {
-            await _publishEndpoint.Publish(@event, cancellationToken);
+            await _publishEndpoint.Publish(@event, @event.GetType(), cancellationToken);
+            published = true;
         }
         catch (Exception exception)
         {
             _logger.Log(LogLevel.Error, exception, "Error while publishing event");
         }
+
+        return published;
     }
 }

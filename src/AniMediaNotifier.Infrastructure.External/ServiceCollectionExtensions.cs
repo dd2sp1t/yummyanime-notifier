@@ -120,7 +120,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddMassTransit(x =>
         {
-            x.AddConsumersFromNamespaceContaining<NewEpisodeDetectedConsumer>();
+            x.AddConsumersFromNamespaceContaining<UpdateAnimeConsumer>();
 
             x.UsingRabbitMq((context, configurator) =>
             {

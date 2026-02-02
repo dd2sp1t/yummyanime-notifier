@@ -32,6 +32,7 @@ public class UpdateAnimeHandler : IRequestHandler<UpdateAnimeCommand, Unit>
         {
             var @event = new AnimeFinishedEvent(anime.Id);
 
+            // TODO: use outbox
             await _eventBus.TryPublishAsync(@event, cancellationToken);
         }
 

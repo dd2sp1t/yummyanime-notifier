@@ -67,6 +67,69 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
                     b.ToTable("Anime", (string)null);
                 });
 
+            modelBuilder.Entity("AniMediaNotifier.Infrastructure.Persistence.Entities.DbNotification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AnimeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EpisodeNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsSent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnimeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notification", (string)null);
+                });
+
+            modelBuilder.Entity("AniMediaNotifier.Infrastructure.Persistence.Entities.DbOutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EventType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Payload")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OutboxMessage", (string)null);
+                });
+
             modelBuilder.Entity("AniMediaNotifier.Infrastructure.Persistence.Entities.DbSubscription", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -89,8 +152,6 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
                     b.HasKey("UserId", "AnimeId");
 
                     b.HasIndex("AnimeId", "IsDeleted");
-
-                    b.HasIndex("UserId", "IsDeleted");
 
                     b.ToTable("Subscription", (string)null);
                 });
@@ -115,6 +176,25 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
                     b.ToTable("User", (string)null);
                 });
 
+            modelBuilder.Entity("AniMediaNotifier.Infrastructure.Persistence.Entities.DbNotification", b =>
+                {
+                    b.HasOne("AniMediaNotifier.Infrastructure.Persistence.Entities.DbAnime", "Anime")
+                        .WithMany("Notifications")
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AniMediaNotifier.Infrastructure.Persistence.Entities.DbUser", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Anime");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("AniMediaNotifier.Infrastructure.Persistence.Entities.DbSubscription", b =>
                 {
                     b.HasOne("AniMediaNotifier.Infrastructure.Persistence.Entities.DbAnime", "Anime")
@@ -136,11 +216,15 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AniMediaNotifier.Infrastructure.Persistence.Entities.DbAnime", b =>
                 {
+                    b.Navigation("Notifications");
+
                     b.Navigation("Subscriptions");
                 });
 
             modelBuilder.Entity("AniMediaNotifier.Infrastructure.Persistence.Entities.DbUser", b =>
                 {
+                    b.Navigation("Notifications");
+
                     b.Navigation("Subscriptions");
                 });
 #pragma warning restore 612, 618

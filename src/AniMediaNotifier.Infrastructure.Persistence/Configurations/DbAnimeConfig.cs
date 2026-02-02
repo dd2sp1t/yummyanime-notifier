@@ -10,40 +10,40 @@ public class DbAnimeConfig : IEntityTypeConfiguration<DbAnime>
     {
         builder.ToTable("Anime");
 
-        builder.HasKey(x => x.Id);
+        builder.HasKey(a => a.Id);
 
-        builder.Property(x => x.SourceLink)
+        builder.Property(a => a.SourceLink)
             .IsRequired()
             .HasMaxLength(500);
 
-        builder.Property(x => x.OriginalName)
+        builder.Property(a => a.OriginalName)
             .IsRequired()
             .HasMaxLength(255);
 
-        builder.Property(x => x.RuName)
+        builder.Property(a => a.RuName)
             .IsRequired()
             .HasMaxLength(255);
 
-        builder.Property(x => x.Year)
+        builder.Property(a => a.Year)
             .IsRequired();
 
-        builder.Property(x => x.Type)
+        builder.Property(a => a.Type)
             .IsRequired()
             .HasConversion<int>();
 
-        builder.Property(x => x.Status)
+        builder.Property(a => a.Status)
             .IsRequired()
             .HasConversion<int>();
 
-        builder.Property(x => x.ReleasedEpisodeCount)
+        builder.Property(a => a.ReleasedEpisodeCount)
             .IsRequired();
 
-        builder.Property(x => x.TotalEpisodeCount)
+        builder.Property(a => a.TotalEpisodeCount)
             .IsRequired(false);
 
-        builder.HasMany(x => x.Subscriptions)
-            .WithOne(x => x.Anime)
-            .HasForeignKey(x => x.AnimeId)
+        builder.HasMany(a => a.Subscriptions)
+            .WithOne(s => s.Anime)
+            .HasForeignKey(s => s.AnimeId)
         // TODO:
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -53,7 +53,7 @@ public class DbAnimeConfig : IEntityTypeConfiguration<DbAnime>
         // TODO:
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(x => x.SourceLink)
+        builder.HasIndex(a => a.SourceLink)
             .IsUnique();
     }
 }

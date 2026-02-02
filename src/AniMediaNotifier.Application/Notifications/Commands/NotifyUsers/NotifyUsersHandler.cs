@@ -40,7 +40,7 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
         var subscriptions = await _subscriptionRepository.FindByAnimeIdAsync(request.AnimeId, cancellationToken);
 
         var tasks = subscriptions
-            .Select(s => TryNotifyAsync(s.UserId, s.AnimeId, message))
+            .Select(s => TryNotifyAsync(s.UserId, s.AnimeId, request.EpisodeNumber, message))
             .ToArray();
 
         await Task.WhenAll(tasks);
@@ -48,13 +48,13 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
         return Unit.Value;
     }
 
-    private async Task TryNotifyAsync(Guid userId, Guid animeId, string message)
+    private async Task TryNotifyAsync(Guid userId, Guid animeId, int episodeNumber, string message)
     {
         await _semaphore.WaitAsync();
 
         try
         {
-            await NotifyAsync(userId, animeId, message);
+            await NotifyAsync(userId, animeId, episodeNumber, message);
         }
         catch (Exception exception)
         {
@@ -71,21 +71,28 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
         }
     }
 
-    private async Task NotifyAsync(Guid userId, Guid animeId, string message)
+    private async Task NotifyAsync(Guid userId, Guid animeId, int episodeNumber, string message)
     {
         using var scope = _serviceScopeFactory.CreateScope();
 
         var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
         var notificationSender = scope.ServiceProvider.GetRequiredService<INotificationSender>();
 
-        var notification = Notification.Create(userId, animeId, message);
+        var notification = await notificationRepository.FindAsync(userId, animeId, episodeNumber);
+        if (notification is { SentAt: not null })
+        {
+            return;
+        }
 
-        await notificationRepository.AddAsync(notification);
+        if (notification is null)
+        {
+            notification = Notification.Create(userId, animeId, episodeNumber, message);
+            await notificationRepository.AddAsync(notification);
+        }
 
         await notificationSender.SendAsync(notification);
 
         notification.MarkAsSent();
-
         await notificationRepository.UpdateAsync(notification);
     }
 }

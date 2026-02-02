@@ -1,6 +1,6 @@
 namespace AniMediaNotifier.Domain.Enums;
 
-public enum AnimeStatusEnum
+public enum AnimeStatus
 {
     None,
     Preview,

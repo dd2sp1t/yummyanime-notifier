@@ -10,7 +10,10 @@ builder.Services
     .AddPersistence(builder.Configuration)
     .AddExternal(builder.Configuration);
 
-builder.Services.AddHostedService<EpisodeTrackingHostedService>();
+builder.Logging.AddFilter("MassTransit", LogLevel.Debug);
+
+// builder.Services.AddHostedService<EpisodeTrackingHostedService>();
+builder.Services.AddHostedService<OutboxPublisherHostedService>();
 
 var host = builder.Build();
 host.Run();

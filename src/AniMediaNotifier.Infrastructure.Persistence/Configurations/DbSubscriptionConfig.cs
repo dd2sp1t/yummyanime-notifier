@@ -10,20 +10,20 @@ public class DbSubscriptionConfig : IEntityTypeConfiguration<DbSubscription>
     {
         builder.ToTable("Subscription");
 
-        builder.HasKey(x => new { x.UserId, x.AnimeId });
+        builder.HasKey(s => new { s.UserId, s.AnimeId });
 
-        builder.Property(x => x.IsDeleted)
+        builder.Property(s => s.IsDeleted)
             .IsRequired()
             .HasDefaultValue(false);
 
-        builder.Property(x => x.CreatedAt)
+        builder.Property(s => s.CreatedAt)
             .IsRequired();
 
-        builder.Property(x => x.UpdatedAt)
+        builder.Property(s => s.UpdatedAt)
             .IsRequired(false);
 
-        // builder.HasIndex(x => new { x.UserId, x.IsDeleted });
+        // builder.HasIndex(s => new { s.UserId, s.IsDeleted });
 
-        builder.HasIndex(x => new { x.AnimeId, x.IsDeleted });
+        builder.HasIndex(s => new { s.AnimeId, s.IsDeleted });
     }
 }

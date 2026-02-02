@@ -36,6 +36,7 @@ namespace AniMediaNotifier.Infrastructure.Persistence
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IOutboxMessageRepository, OutboxMessageRepository>();
 
             return services;
         }

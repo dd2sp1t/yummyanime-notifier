@@ -1,6 +1,6 @@
 namespace AniMediaNotifier.Domain.Enums;
 
-public enum AnimeTypeEnum
+public enum AnimeType
 {
     None,
     TvSerial,

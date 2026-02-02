@@ -4,7 +4,7 @@ namespace AniMediaNotifier.Application.Subscriptions.Queries.GetUserSubscription
 
 public record GetUserSubscriptionsQueryResultItem(
     string RuName,
-    AnimeStatusEnum Status,
+    AnimeStatus Status,
     int ReleasedEpisodeCount,
     int? TotalEpisodeCount,
     bool IsDeleted);

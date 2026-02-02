@@ -1,19 +1,75 @@
 using AniMediaNotifier.Application.Repositories;
 using AniMediaNotifier.Domain.Entities;
+using AniMediaNotifier.Infrastructure.Persistence.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace AniMediaNotifier.Infrastructure.Persistence.Repositories;
 
-public class NotificationRepository : INotificationRepository
+internal class NotificationRepository : INotificationRepository
 {
-    public Task AddAsync(Notification notification, CancellationToken cancellationToken)
+    private readonly AniMediaDbContext _dbContext;
+
+    public NotificationRepository(AniMediaDbContext dbContext)
     {
-        return Task.CompletedTask;
-        throw new NotImplementedException();
+        _dbContext = dbContext;
     }
 
-    public Task UpdateAsync(Notification notification, CancellationToken cancellationToken)
+    public async Task<Notification> FindAsync(
+        Guid userId,
+        Guid animeId,
+        int episodeNumber,
+        CancellationToken cancellationToken)
     {
-        return Task.CompletedTask;
-        throw new NotImplementedException();
+        var dbNotification = await _dbContext.Notifications
+            .AsNoTracking()
+            .Where(n => n.UserId == userId
+                    && n.AnimeId == animeId
+                    && n.EpisodeNumber == episodeNumber)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (dbNotification is null)
+        {
+            return null;
+        }
+
+        return Notification.FromExisting(
+            dbNotification.Id,
+            dbNotification.CreatedAt,
+            dbNotification.UserId,
+            dbNotification.AnimeId,
+            dbNotification.EpisodeNumber,
+            dbNotification.Message,
+            dbNotification.IsSent,
+            dbNotification.SentAt);
+    }
+
+    public async Task AddAsync(Notification notification, CancellationToken cancellationToken)
+    {
+        var dbNotification = new DbNotification
+        {
+            Id = notification.Id,
+            CreatedAt = notification.CreatedAt,
+            UserId = notification.UserId,
+            AnimeId = notification.AnimeId,
+            EpisodeNumber = notification.EpisodeNumber,
+            Message = notification.Message,
+            IsSent = notification.IsSent,
+            SentAt = notification.SentAt
+        };
+        _dbContext.Notifications.Add(dbNotification);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task UpdateAsync(Notification notification, CancellationToken cancellationToken)
+    {
+        var dbNotification = await _dbContext.Notifications.SingleAsync(
+            n => n.Id == notification.Id,
+            cancellationToken);
+
+        dbNotification.IsSent = notification.IsSent;
+        dbNotification.SentAt = notification.SentAt;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -10,15 +10,15 @@ public class DbUserConfig : IEntityTypeConfiguration<DbUser>
     {
         builder.ToTable("User");
 
-        builder.HasKey(x => x.Id);
+        builder.HasKey(u => u.Id);
 
-        builder.Property(x => x.TelegramUserId)
+        builder.Property(u => u.TelegramUserId)
             .IsRequired();
 
-        builder.HasIndex(x => x.TelegramUserId)
+        builder.HasIndex(u => u.TelegramUserId)
             .IsUnique();
 
-        builder.HasMany(x => x.Subscriptions)
+        builder.HasMany(u => u.Subscriptions)
             .WithOne(s => s.User)
             .HasForeignKey(s => s.UserId)
         // TODO:

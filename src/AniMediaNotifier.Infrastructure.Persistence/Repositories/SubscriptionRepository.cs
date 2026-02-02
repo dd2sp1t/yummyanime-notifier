@@ -16,9 +16,11 @@ internal class SubscriptionRepository : ISubscriptionRepository
 
     public async Task<Subscription> FindAsync(Guid userId, Guid animeId, CancellationToken cancellationToken)
     {
-        var dbSub = await _dbContext.Subscriptions.SingleOrDefaultAsync(
-            s => s.UserId == userId && s.AnimeId == animeId,
-            cancellationToken);
+        var dbSub = await _dbContext.Subscriptions
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                s => s.UserId == userId && s.AnimeId == animeId,
+                cancellationToken);
 
         if (dbSub is null)
         {

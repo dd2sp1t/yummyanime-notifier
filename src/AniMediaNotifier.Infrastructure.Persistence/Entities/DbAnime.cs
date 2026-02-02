@@ -11,8 +11,8 @@ public class DbAnime
     public string OriginalName { get; set; }
     public string RuName { get; set; }
     public int Year { get; set; }
-    public AnimeTypeEnum Type { get; set; }
-    public AnimeStatusEnum Status { get; set; }
+    public AnimeType Type { get; set; }
+    public AnimeStatus Status { get; set; }
     public int ReleasedEpisodeCount { get; set; }
     public int? TotalEpisodeCount { get; set; }
 
