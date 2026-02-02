@@ -1,17 +1,19 @@
-using AniMediaNotifier.Application.Notifications.Commands.NotifyUsers;
 using AniMediaNotifier.Application.Events;
 using MediatR;
 using MassTransit;
+using AniMediaNotifier.Application.Anime.Commands.UpdateAnime;
 using Microsoft.Extensions.Logging;
 
 namespace AniMediaNotifier.Infrastructure.External.Events.MassTransit.Consumers;
 
-public class NotifyUsersConsumer : IConsumer<NewEpisodeDetectedEvent>
+public class NewEpisodeDetected_UpdateAnimeConsumer : IConsumer<NewEpisodeDetectedEvent>
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<NotifyUsersConsumer> _logger;
+    private readonly ILogger<NewEpisodeDetected_UpdateAnimeConsumer> _logger;
 
-    public NotifyUsersConsumer(IMediator mediator, ILogger<NotifyUsersConsumer> logger)
+    public NewEpisodeDetected_UpdateAnimeConsumer(
+        IMediator mediator,
+        ILogger<NewEpisodeDetected_UpdateAnimeConsumer> logger)
     {
         _mediator = mediator;
         _logger = logger;
@@ -23,14 +25,14 @@ public class NotifyUsersConsumer : IConsumer<NewEpisodeDetectedEvent>
 
         try
         {
-            await _mediator.Send(new NotifyUsersCommand(@event.AnimeId, @event.EpisodeNumber));
+            await _mediator.Send(new UpdateAnimeCommand(@event.AnimeId, @event.EpisodeNumber));
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
             _logger.Log(
                 LogLevel.Error,
                 exception,
-                "Failed to notify users about anime {AnimeId}",
+                "Failed to update anime {AnimeId}",
                 @event.AnimeId);
         }
     }

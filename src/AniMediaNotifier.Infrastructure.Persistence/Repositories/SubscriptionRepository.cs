@@ -102,8 +102,9 @@ internal class SubscriptionRepository : ISubscriptionRepository
         return subscriptions.AsReadOnly();
     }
 
-    public Task UpdateAsync(ICollection<Subscription> subscriptions, CancellationToken cancellationToken = default)
+    public Task UpdateAsync(ICollection<Subscription> subscriptions, CancellationToken cancellationToken)
     {
+        // TODO:
         throw new NotImplementedException();
     }
 }

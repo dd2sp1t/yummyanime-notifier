@@ -5,6 +5,7 @@ namespace AniMediaNotifier.Worker.BackgroundServices;
 
 internal class OutboxPublisherHostedService : BackgroundService
 {
+    // TODO: use IOptions
     private const int MaxCount = 10;
     private const int MillisecondsDelay = 1_000;
     private readonly ILogger<OutboxPublisherHostedService> _logger;
@@ -20,14 +21,15 @@ internal class OutboxPublisherHostedService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        using var scope = _serviceProvider.CreateScope();
+
+        var outboxMessageRepository = scope.ServiceProvider.GetRequiredService<IOutboxMessageRepository>();
+        var eventBus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+
         while (stoppingToken.IsCancellationRequested == false)
         {
             try
             {
-                var scope = _serviceProvider.CreateScope();
-                var outboxMessageRepository = scope.ServiceProvider.GetRequiredService<IOutboxMessageRepository>();
-                var eventBus = scope.ServiceProvider.GetRequiredService<IEventBus>();
-
                 var messages = await outboxMessageRepository.GetPendingAsync(MaxCount, stoppingToken);
 
                 foreach (var message in messages)

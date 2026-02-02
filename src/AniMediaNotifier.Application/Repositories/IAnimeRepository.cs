@@ -1,3 +1,5 @@
+using AniMediaNotifier.Domain.Entities;
+
 namespace AniMediaNotifier.Application.Repositories;
 
 public interface IAnimeRepository
@@ -7,4 +9,8 @@ public interface IAnimeRepository
     Task<Domain.Entities.Anime> GetAsync(Guid id, CancellationToken cancellationToken = default);
     Task AddAsync(Domain.Entities.Anime anime, CancellationToken cancellationToken = default);
     Task UpdateAsync(Domain.Entities.Anime anime, CancellationToken cancellationToken = default);
+    Task UpdateWithOutboxMessageAsync(
+        Domain.Entities.Anime anime,
+        OutboxMessage outboxMessage,
+        CancellationToken cancellationToken = default);
 }

@@ -83,8 +83,6 @@ internal class AnimeRepository : IAnimeRepository
 
     public async Task AddAsync(Anime anime, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(anime);
-
         var dbAnime = new DbAnime
         {
             Id = anime.Id,
@@ -105,13 +103,36 @@ internal class AnimeRepository : IAnimeRepository
 
     public async Task UpdateAsync(Anime anime, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(anime);
-
         var dbAnime = await _dbContext.Animes.SingleAsync(a => a.Id == anime.Id, cancellationToken);
 
         dbAnime.ReleasedEpisodeCount = anime.ReleasedEpisodeCount;
         dbAnime.Status = anime.Status;
         dbAnime.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task UpdateWithOutboxMessageAsync(
+        Anime anime,
+        OutboxMessage outboxMessage,
+        CancellationToken cancellationToken)
+    {
+        var dbAnime = await _dbContext.Animes.SingleAsync(a => a.Id == anime.Id, cancellationToken);
+
+        dbAnime.ReleasedEpisodeCount = anime.ReleasedEpisodeCount;
+        dbAnime.Status = anime.Status;
+        dbAnime.UpdatedAt = DateTimeOffset.UtcNow;
+
+        var dbOutboxMessage = new DbOutboxMessage
+        {
+            Id = outboxMessage.Id,
+            CreatedAt = outboxMessage.CreatedAt,
+            EventType = outboxMessage.EventType,
+            Payload = outboxMessage.Payload,
+            Status = outboxMessage.Status,
+            Error = outboxMessage.Error
+        };
+        _dbContext.OutboxMessages.Add(dbOutboxMessage);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
