@@ -1,4 +1,4 @@
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
 using AniMediaNotifier.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +43,7 @@ internal class NotificationRepository : INotificationRepository
             dbNotification.SentAt);
     }
 
-    public async Task AddAsync(Notification notification, CancellationToken cancellationToken)
+    public void Add(Notification notification)
     {
         var dbNotification = new DbNotification
         {
@@ -57,8 +57,6 @@ internal class NotificationRepository : INotificationRepository
             SentAt = notification.SentAt
         };
         _dbContext.Notifications.Add(dbNotification);
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(Notification notification, CancellationToken cancellationToken)
@@ -69,7 +67,5 @@ internal class NotificationRepository : INotificationRepository
 
         dbNotification.IsSent = notification.IsSent;
         dbNotification.SentAt = notification.SentAt;
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -1,4 +1,4 @@
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
 using AniMediaNotifier.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;

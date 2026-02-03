@@ -1,4 +1,5 @@
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using MediatR;
 
 namespace AniMediaNotifier.Application.Subscriptions.Commands.CancelSubscriptions;
@@ -8,10 +9,12 @@ public class CancelSubscriptionsHandler : IRequestHandler<CancelSubscriptionsCom
     // TODO: move to config
     private const int BatchSize = 500;
     private readonly ISubscriptionRepository _subscriptionRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CancelSubscriptionsHandler(ISubscriptionRepository subscriptionRepository)
+    public CancelSubscriptionsHandler(ISubscriptionRepository subscriptionRepository, IUnitOfWork unitOfWork)
     {
         _subscriptionRepository = subscriptionRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Unit> Handle(CancelSubscriptionsCommand request, CancellationToken cancellationToken)
@@ -26,7 +29,7 @@ public class CancelSubscriptionsHandler : IRequestHandler<CancelSubscriptionsCom
                 skip,
                 cancellationToken);
 
-            if (batch.Count == 0)
+            if (batch.Length == 0)
             {
                 break;
             }
@@ -36,9 +39,10 @@ public class CancelSubscriptionsHandler : IRequestHandler<CancelSubscriptionsCom
                 sub.Cancel();
             }
 
-            await _subscriptionRepository.UpdateAsync(batch, cancellationToken);
+            await _subscriptionRepository.UpdateRangeAsync(batch, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            skip += batch.Count;
+            skip += batch.Length;
         }
 
         return Unit.Value;

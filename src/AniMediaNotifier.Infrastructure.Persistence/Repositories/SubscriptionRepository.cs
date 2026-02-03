@@ -1,4 +1,4 @@
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
 using AniMediaNotifier.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -35,31 +35,31 @@ internal class SubscriptionRepository : ISubscriptionRepository
             dbSub.IsDeleted);
     }
 
-    public async Task<IReadOnlyCollection<Subscription>> FindByUserIdAsync(
+    public async Task<Subscription[]> FindByUserIdAsync(
         Guid userId,
         CancellationToken cancellationToken)
     {
         var subscriptions = await _dbContext.Subscriptions
             .Where(s => s.UserId == userId && s.IsDeleted == false)
             .Select(s => Subscription.FromExisting(s.UserId, s.AnimeId, s.CreatedAt, s.UpdatedAt, s.IsDeleted))
-            .ToListAsync(cancellationToken);
+            .ToArrayAsync(cancellationToken);
 
-        return subscriptions.AsReadOnly();
+        return subscriptions;
     }
 
-    public async Task<IReadOnlyCollection<Subscription>> FindByAnimeIdAsync(
+    public async Task<Subscription[]> FindByAnimeIdAsync(
         Guid animeId,
         CancellationToken cancellationToken)
     {
         var subscriptions = await _dbContext.Subscriptions
             .Where(s => s.AnimeId == animeId && s.IsDeleted == false)
             .Select(s => Subscription.FromExisting(s.UserId, s.AnimeId, s.CreatedAt, s.UpdatedAt, s.IsDeleted))
-            .ToListAsync(cancellationToken);
+            .ToArrayAsync(cancellationToken);
 
-        return subscriptions.AsReadOnly();
+        return subscriptions;
     }
 
-    public async Task AddAsync(Subscription subscription, CancellationToken cancellationToken)
+    public void Add(Subscription subscription)
     {
         var dbSub = new DbSubscription
         {
@@ -70,8 +70,6 @@ internal class SubscriptionRepository : ISubscriptionRepository
             IsDeleted = subscription.IsDeleted
         };
         _dbContext.Subscriptions.Add(dbSub);
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(Subscription subscription, CancellationToken cancellationToken)
@@ -86,7 +84,7 @@ internal class SubscriptionRepository : ISubscriptionRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<ICollection<Subscription>> GetByAnimeId(
+    public async Task<Subscription[]> GetByAnimeId(
         Guid animeId,
         int take,
         int skip,
@@ -97,14 +95,35 @@ internal class SubscriptionRepository : ISubscriptionRepository
             .Skip(skip)
             .Take(take)
             .Select(s => Subscription.FromExisting(s.UserId, s.AnimeId, s.CreatedAt, s.UpdatedAt, s.IsDeleted))
-            .ToListAsync(cancellationToken);
+            .ToArrayAsync(cancellationToken);
 
-        return subscriptions.AsReadOnly();
+        return subscriptions;
     }
 
-    public Task UpdateAsync(ICollection<Subscription> subscriptions, CancellationToken cancellationToken)
+    public async Task UpdateRangeAsync(Subscription[] subscriptions, CancellationToken cancellationToken)
     {
-        // TODO:
-        throw new NotImplementedException();
+        if (subscriptions.Length == 0)
+        {
+            return;
+        }
+
+        var domainByKey = subscriptions.ToDictionary(s => (s.UserId, s.AnimeId));
+
+        var userIds = subscriptions.Select(s => s.UserId).Distinct().ToArray();
+        var animeIds = subscriptions.Select(s => s.AnimeId).Distinct().ToArray();
+
+        var dbSubscriptions = await _dbContext.Subscriptions
+            .Where(db => userIds.Contains(db.UserId) && animeIds.Contains(db.AnimeId))
+            .ToArrayAsync(cancellationToken);
+
+        foreach (var dbSub in dbSubscriptions)
+        {
+            var key = (dbSub.UserId, dbSub.AnimeId);
+            if (domainByKey.TryGetValue(key, out var domainSub))
+            {
+                dbSub.IsDeleted = domainSub.IsDeleted;
+                dbSub.UpdatedAt = domainSub.UpdatedAt;
+            }
+        }
     }
 }

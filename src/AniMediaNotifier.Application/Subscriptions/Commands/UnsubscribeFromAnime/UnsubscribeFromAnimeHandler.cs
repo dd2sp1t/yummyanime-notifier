@@ -1,5 +1,5 @@
 using AniMediaNotifier.Application.Exceptions;
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using MediatR;
 
 namespace AniMediaNotifier.Application.Subscriptions.Commands.UnsubscribeFromAnime;

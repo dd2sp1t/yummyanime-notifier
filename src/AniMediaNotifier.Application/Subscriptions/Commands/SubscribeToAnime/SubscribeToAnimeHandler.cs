@@ -1,7 +1,8 @@
 using AniMediaNotifier.Application.AniMedia.Client;
 using AniMediaNotifier.Application.AniMedia.Mappers;
 using AniMediaNotifier.Application.AniMedia.Parsers;
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
 using MediatR;
 
@@ -9,6 +10,7 @@ namespace AniMediaNotifier.Application.Subscriptions.Commands.SubscribeToAnime;
 
 public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, Unit>
 {
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
     private readonly IAnimeRepository _animeRepository;
     private readonly ISubscriptionRepository _subscriptionRepository;
@@ -17,6 +19,7 @@ public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, 
     private readonly AnimeMapper _animeMapper;
 
     public SubscribeToAnimeHandler(
+        IUnitOfWork unitOfWork,
         IUserRepository userRepository,
         IAnimeRepository animeRepository,
         ISubscriptionRepository subscriptionRepository,
@@ -24,6 +27,7 @@ public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, 
         IAnimePageParser animePageParser,
         AnimeMapper animeMapper)
     {
+        _unitOfWork = unitOfWork;
         _userRepository = userRepository;
         _animeRepository = animeRepository;
         _subscriptionRepository = subscriptionRepository;
@@ -43,15 +47,15 @@ public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, 
         if (existing is null)
         {
             var @new = Subscription.Create(user.Id, anime.Id, anime.Status);
-
-            await _subscriptionRepository.AddAsync(@new, cancellationToken);
+            _subscriptionRepository.Add(@new);
         }
         else
         {
             existing.Restore(anime.Status);
-
             await _subscriptionRepository.UpdateAsync(existing, cancellationToken);
         }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;
     }
@@ -68,7 +72,8 @@ public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, 
         {
             anime = await GetAnimeFromSourceAsync(sourceUri, cancellationToken);
 
-            await _animeRepository.AddAsync(anime, cancellationToken);
+            _animeRepository.Add(anime);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         return anime;

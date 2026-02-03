@@ -1,4 +1,5 @@
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +33,7 @@ namespace AniMediaNotifier.Infrastructure.Persistence
                 }
             });
 
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAnimeRepository, AnimeRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();

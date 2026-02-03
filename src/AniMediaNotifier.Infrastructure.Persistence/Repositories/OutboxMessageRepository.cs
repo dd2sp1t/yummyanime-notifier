@@ -1,4 +1,4 @@
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
 using AniMediaNotifier.Domain.Enums;
 using AniMediaNotifier.Infrastructure.Persistence.Entities;
@@ -15,7 +15,7 @@ internal class OutboxMessageRepository : IOutboxMessageRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(OutboxMessage message, CancellationToken cancellationToken)
+    public void Add(OutboxMessage message)
     {
         var dbMessage = new DbOutboxMessage
         {
@@ -27,11 +27,9 @@ internal class OutboxMessageRepository : IOutboxMessageRepository
             Error = message.Error
         };
         _dbContext.OutboxMessages.Add(dbMessage);
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task AddRangeAsync(OutboxMessage[] messages, CancellationToken cancellationToken)
+    public void AddRange(OutboxMessage[] messages)
     {
         var dbMessages = messages
             .Select(m => new DbOutboxMessage
@@ -45,8 +43,6 @@ internal class OutboxMessageRepository : IOutboxMessageRepository
             })
             .ToArray();
         _dbContext.OutboxMessages.AddRange(dbMessages);
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateRangeAsync(OutboxMessage[] messages, CancellationToken cancellationToken)
@@ -71,8 +67,6 @@ internal class OutboxMessageRepository : IOutboxMessageRepository
             dbMessage.Status = domainMessage.Status;
             dbMessage.Error = domainMessage.Error;
         }
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<OutboxMessage[]> GetPendingAsync(int maxCount, CancellationToken cancellationToken)

@@ -3,7 +3,8 @@ using AniMediaNotifier.Application.AniMedia.Client;
 using AniMediaNotifier.Application.AniMedia.Parsers;
 using AniMediaNotifier.Application.AniMedia.Parsers.Models;
 using AniMediaNotifier.Application.Events;
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -17,19 +18,22 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
     private readonly IEpisodeWidgetParser _episodeWidgetParser;
     private readonly IAnimeRepository _animeRepository;
     private readonly IOutboxMessageRepository _outboxMessageRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CheckNewEpisodesHandler(
         IOptions<AniMediaSiteData> options,
         IAniMediaClient aniMediaClient,
         IEpisodeWidgetParser episodeWidgetParser,
         IAnimeRepository animeRepository,
-        IOutboxMessageRepository outboxMessageRepository)
+        IOutboxMessageRepository outboxMessageRepository,
+        IUnitOfWork unitOfWork)
     {
         _aniMediaSiteData = options.Value;
         _aniMediaClient = aniMediaClient;
         _episodeWidgetParser = episodeWidgetParser;
         _animeRepository = animeRepository;
         _outboxMessageRepository = outboxMessageRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Unit> Handle(CheckNewEpisodesCommand request, CancellationToken cancellationToken)
@@ -61,7 +65,9 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
             })
             .ToArray();
 
-        await _outboxMessageRepository.AddRangeAsync(outboxMessages, cancellationToken);
+        _outboxMessageRepository.AddRange(outboxMessages);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;
     }

@@ -1,5 +1,6 @@
 using AniMediaNotifier.Application.Events;
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence;
+using AniMediaNotifier.Application.Persistence.Repositories;
 
 namespace AniMediaNotifier.Worker.BackgroundServices;
 
@@ -23,6 +24,7 @@ internal class OutboxPublisherHostedService : BackgroundService
     {
         using var scope = _serviceProvider.CreateScope();
 
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var outboxMessageRepository = scope.ServiceProvider.GetRequiredService<IOutboxMessageRepository>();
         var eventBus = scope.ServiceProvider.GetRequiredService<IEventBus>();
 
@@ -48,6 +50,8 @@ internal class OutboxPublisherHostedService : BackgroundService
                 }
 
                 await outboxMessageRepository.UpdateRangeAsync(messages, stoppingToken);
+                await unitOfWork.SaveChangesAsync(stoppingToken);
+
             }
             catch (Exception exception)
             {

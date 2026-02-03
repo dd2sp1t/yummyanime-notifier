@@ -1,6 +1,6 @@
 using AniMediaNotifier.Domain.Entities;
 
-namespace AniMediaNotifier.Application.Repositories;
+namespace AniMediaNotifier.Application.Persistence.Repositories;
 
 public interface IUserRepository
 {

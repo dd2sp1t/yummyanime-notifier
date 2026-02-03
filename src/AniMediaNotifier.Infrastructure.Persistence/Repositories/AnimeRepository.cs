@@ -1,4 +1,4 @@
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
 using AniMediaNotifier.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -81,7 +81,7 @@ internal class AnimeRepository : IAnimeRepository
             dbAnime.TotalEpisodeCount);
     }
 
-    public async Task AddAsync(Anime anime, CancellationToken cancellationToken)
+    public void Add(Anime anime)
     {
         var dbAnime = new DbAnime
         {
@@ -97,8 +97,6 @@ internal class AnimeRepository : IAnimeRepository
             TotalEpisodeCount = anime.TotalEpisodeCount
         };
         _dbContext.Animes.Add(dbAnime);
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(Anime anime, CancellationToken cancellationToken)
@@ -108,32 +106,5 @@ internal class AnimeRepository : IAnimeRepository
         dbAnime.ReleasedEpisodeCount = anime.ReleasedEpisodeCount;
         dbAnime.Status = anime.Status;
         dbAnime.UpdatedAt = DateTimeOffset.UtcNow;
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task UpdateWithOutboxMessageAsync(
-        Anime anime,
-        OutboxMessage outboxMessage,
-        CancellationToken cancellationToken)
-    {
-        var dbAnime = await _dbContext.Animes.SingleAsync(a => a.Id == anime.Id, cancellationToken);
-
-        dbAnime.ReleasedEpisodeCount = anime.ReleasedEpisodeCount;
-        dbAnime.Status = anime.Status;
-        dbAnime.UpdatedAt = DateTimeOffset.UtcNow;
-
-        var dbOutboxMessage = new DbOutboxMessage
-        {
-            Id = outboxMessage.Id,
-            CreatedAt = outboxMessage.CreatedAt,
-            EventType = outboxMessage.EventType,
-            Payload = outboxMessage.Payload,
-            Status = outboxMessage.Status,
-            Error = outboxMessage.Error
-        };
-        _dbContext.OutboxMessages.Add(dbOutboxMessage);
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

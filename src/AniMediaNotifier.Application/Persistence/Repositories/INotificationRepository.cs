@@ -1,6 +1,6 @@
 using AniMediaNotifier.Domain.Entities;
 
-namespace AniMediaNotifier.Application.Repositories;
+namespace AniMediaNotifier.Application.Persistence.Repositories;
 
 public interface INotificationRepository
 {
@@ -10,7 +10,7 @@ public interface INotificationRepository
         int episodeNumber,
         CancellationToken cancellationToken = default);
 
-    Task AddAsync(Notification notification, CancellationToken cancellationToken = default);
+    void Add(Notification notification);
 
     Task UpdateAsync(Notification notification, CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,5 @@
-using AniMediaNotifier.Application.Repositories;
+using AniMediaNotifier.Application.Persistence;
+using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,6 +76,7 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
     {
         using var scope = _serviceScopeFactory.CreateScope();
 
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
         var notificationSender = scope.ServiceProvider.GetRequiredService<INotificationSender>();
 
@@ -87,12 +89,16 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
         if (notification is null)
         {
             notification = Notification.Create(userId, animeId, episodeNumber, message);
-            await notificationRepository.AddAsync(notification);
+            notificationRepository.Add(notification);
+
+            await unitOfWork.SaveChangesAsync();
         }
 
         await notificationSender.SendAsync(notification);
 
         notification.MarkAsSent();
         await notificationRepository.UpdateAsync(notification);
+
+        await unitOfWork.SaveChangesAsync();
     }
 }
