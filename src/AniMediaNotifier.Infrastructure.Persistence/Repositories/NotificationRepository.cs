@@ -35,12 +35,15 @@ internal class NotificationRepository : INotificationRepository
         return Notification.FromExisting(
             dbNotification.Id,
             dbNotification.CreatedAt,
+            dbNotification.UpdatedAt,
             dbNotification.UserId,
             dbNotification.AnimeId,
+            dbNotification.RuName,
+            dbNotification.Url,
+            dbNotification.TotalEpisodes,
             dbNotification.EpisodeNumber,
-            dbNotification.Message,
-            dbNotification.IsSent,
-            dbNotification.SentAt);
+            dbNotification.Status,
+            dbNotification.Error);
     }
 
     public void Add(Notification notification)
@@ -49,12 +52,15 @@ internal class NotificationRepository : INotificationRepository
         {
             Id = notification.Id,
             CreatedAt = notification.CreatedAt,
+            UpdatedAt = notification.UpdatedAt,
             UserId = notification.UserId,
             AnimeId = notification.AnimeId,
+            RuName = notification.RuName,
+            Url = notification.Url,
+            TotalEpisodes = notification.TotalEpisodes,
             EpisodeNumber = notification.EpisodeNumber,
-            Message = notification.Message,
-            IsSent = notification.IsSent,
-            SentAt = notification.SentAt
+            Status = notification.Status,
+            Error = notification.Error
         };
         _dbContext.Notifications.Add(dbNotification);
     }
@@ -65,7 +71,8 @@ internal class NotificationRepository : INotificationRepository
             n => n.Id == notification.Id,
             cancellationToken);
 
-        dbNotification.IsSent = notification.IsSent;
-        dbNotification.SentAt = notification.SentAt;
+        dbNotification.Status = notification.Status;
+        dbNotification.Error = notification.Error;
+        dbNotification.UpdatedAt = notification.UpdatedAt;
     }
 }

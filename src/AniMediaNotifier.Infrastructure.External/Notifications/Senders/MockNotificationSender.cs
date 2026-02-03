@@ -1,0 +1,15 @@
+using System.Text.Json;
+using AniMediaNotifier.Application.Notifications.Senders;
+using AniMediaNotifier.Domain.Entities;
+
+namespace AniMediaNotifier.Infrastructure.External.Notifications.Senders;
+
+public class MockNotificationSender : INotificationSender
+{
+    public Task<SendResult> TrySendAsync(Notification notification, CancellationToken cancellationToken)
+    {
+        Console.WriteLine($"Notification {JsonSerializer.Serialize(notification)} was sent");
+
+        return Task.FromResult(new SendResult(true, null));
+    }
+}

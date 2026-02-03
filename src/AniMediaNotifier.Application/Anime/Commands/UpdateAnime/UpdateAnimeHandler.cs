@@ -26,7 +26,7 @@ public class UpdateAnimeHandler : IRequestHandler<UpdateAnimeCommand, Unit>
     {
         var anime = await _animeRepository.GetAsync(request.AnimeId, cancellationToken);
 
-        var updated = anime.TryUpdateReleasedEpisode(request.EpisodeNumber);
+        var updated = anime.TryUpdateReleasedEpisodes(request.EpisodeNumber);
 
         if (updated == false)
         {

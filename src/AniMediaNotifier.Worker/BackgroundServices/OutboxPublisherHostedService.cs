@@ -8,7 +8,7 @@ internal class OutboxPublisherHostedService : BackgroundService
 {
     // TODO: use IOptions
     private const int MaxCount = 10;
-    private const int MillisecondsDelay = 1_000;
+    private const int MillisecondsDelay = 100_000;
     private readonly ILogger<OutboxPublisherHostedService> _logger;
     private readonly IServiceProvider _serviceProvider;
 

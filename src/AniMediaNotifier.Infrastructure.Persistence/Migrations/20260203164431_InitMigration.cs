@@ -24,8 +24,8 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
                     Year = table.Column<int>(type: "INTEGER", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    ReleasedEpisodeCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    TotalEpisodeCount = table.Column<int>(type: "INTEGER", nullable: true)
+                    ReleasedEpisodes = table.Column<int>(type: "INTEGER", nullable: false),
+                    TotalEpisodes = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -67,12 +67,15 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     AnimeId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    RuName = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    Url = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
+                    TotalEpisodes = table.Column<int>(type: "INTEGER", nullable: true),
                     EpisodeNumber = table.Column<int>(type: "INTEGER", nullable: false),
-                    Message = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: false),
-                    IsSent = table.Column<bool>(type: "INTEGER", nullable: false),
-                    SentAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
+                    Status = table.Column<int>(type: "INTEGER", nullable: false),
+                    Error = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

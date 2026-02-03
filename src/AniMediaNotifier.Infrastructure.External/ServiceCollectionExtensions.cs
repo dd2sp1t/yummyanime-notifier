@@ -1,12 +1,14 @@
 using AniMediaNotifier.Application.AniMedia.Client;
 using AniMediaNotifier.Application.AniMedia.Parsers;
 using AniMediaNotifier.Application.Events;
-using AniMediaNotifier.Application.Notifications;
+using AniMediaNotifier.Application.Notifications.Senders;
 using AniMediaNotifier.Infrastructure.External.AniMedia.Client;
 using AniMediaNotifier.Infrastructure.External.AniMedia.Parsers;
 using AniMediaNotifier.Infrastructure.External.Events.MassTransit;
 using AniMediaNotifier.Infrastructure.External.Events.MassTransit.Consumers;
-using AniMediaNotifier.Infrastructure.External.NotificationSenders;
+using AniMediaNotifier.Infrastructure.External.Notifications.Formatters;
+using AniMediaNotifier.Infrastructure.External.Notifications.Senders;
+using AniMediaNotifier.Infrastructure.External.Notifications.Senders.Telegram;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Timeout;
+using Telegram.Bot;
 
 namespace AniMediaNotifier.Infrastructure.External;
 
@@ -24,10 +27,34 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         return services
+            .AddEvents(configuration)
+            .AddAniMediaTools(configuration)
+            .AddNotificationSender(configuration);
+    }
+
+    private static IServiceCollection AddEvents(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumersFromNamespaceContaining<NewEpisodeDetected_UpdateAnimeConsumer>();
+
+            x.UsingRabbitMq((context, configurator) =>
+            {
+                configurator.Host(configuration.GetConnectionString("RabbitMQ"));
+
+                configurator.ConfigureEndpoints(context);
+            });
+        });
+        services.AddScoped<IEventBus, MassTransitEventBus>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddAniMediaTools(this IServiceCollection services, IConfiguration configuration)
+    {
+        return services
             .AddAniMediaClient(configuration)
-            .AddAniMediaParsers()
-            .AddNotificationSender()
-            .AddEvents(configuration);
+            .AddAniMediaParsers();
     }
 
     private static IServiceCollection AddAniMediaClient(this IServiceCollection services, IConfiguration configuration)
@@ -65,7 +92,8 @@ public static class ServiceCollectionExtensions
                         },
                         onRetry: (outcome, timespan, retryAttempt, context) =>
                         {
-                            logger.LogWarning(
+                            logger.Log(
+                                LogLevel.Warning,
                                 "{ClassName}: Retrying... attempt {Attempt}, waiting {Delay}s",
                                 nameof(AniMediaClient),
                                 retryAttempt,
@@ -86,7 +114,8 @@ public static class ServiceCollectionExtensions
                         durationOfBreak: TimeSpan.FromSeconds(settings.CircuitBreakerDurationSeconds),
                         onBreak: (outcome, timespan) =>
                         {
-                            logger.LogWarning(
+                            logger.Log(
+                                LogLevel.Warning,
                                 "{ClassName}: Circuit open for {Delay}s",
                                 nameof(AniMediaClient),
                                 timespan.TotalSeconds);
@@ -109,27 +138,24 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    private static IServiceCollection AddNotificationSender(this IServiceCollection services)
+    private static IServiceCollection AddNotificationSender(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        services.AddScoped<INotificationSender, MockNotificationSender>();
+        var botSettingsSection = configuration.GetSection(nameof(TelegramBotSettings));
+        services.Configure<TelegramBotSettings>(botSettingsSection);
 
-        return services;
-    }
-
-    private static IServiceCollection AddEvents(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddMassTransit(x =>
+        services.AddSingleton<ITelegramBotClient>(sp =>
         {
-            x.AddConsumersFromNamespaceContaining<NewEpisodeDetected_UpdateAnimeConsumer>();
-
-            x.UsingRabbitMq((context, configurator) =>
-            {
-                configurator.Host(configuration.GetConnectionString("RabbitMQ"));
-
-                configurator.ConfigureEndpoints(context);
-            });
+            var settings = sp.GetRequiredService<IOptions<TelegramBotSettings>>().Value;
+            return new TelegramBotClient(settings.Token);
         });
-        services.AddScoped<IEventBus, MassTransitEventBus>();
+
+        services.AddScoped<INotificationFormatter, HtmlNotificationFormatter>();
+        // services.AddScoped<INotificationFormatter, MarkdownNotificationFormatter>();
+
+        // services.AddScoped<INotificationSender, MockNotificationSender>();
+        services.AddScoped<INotificationSender, TelegramNotificationSender>();
 
         return services;
     }

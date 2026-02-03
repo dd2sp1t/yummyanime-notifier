@@ -43,8 +43,8 @@ public class GetUserSubscriptionsHandler :
                 return new GetUserSubscriptionsQueryResultItem(
                     anime.RuName,
                     anime.Status,
-                    anime.ReleasedEpisodeCount,
-                    anime.TotalEpisodeCount,
+                    anime.ReleasedEpisodes,
+                    anime.TotalEpisodes,
                     s.IsDeleted
                 );
             })

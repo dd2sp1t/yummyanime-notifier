@@ -15,28 +15,41 @@ public class DbNotificationConfig : IEntityTypeConfiguration<DbNotification>
         builder.Property(n => n.Id)
             .ValueGeneratedNever();
 
+        builder.Property(n => n.CreatedAt)
+            .IsRequired();
+
+        builder.Property(n => n.UpdatedAt)
+            .IsRequired(false);
+
         builder.Property(n => n.UserId)
             .IsRequired();
 
         builder.Property(n => n.AnimeId)
             .IsRequired();
 
-        builder.Property(n => n.Message)
+        builder.Property(n => n.RuName)
             .IsRequired()
-            .HasMaxLength(1024);
+            .HasMaxLength(255);
 
-        builder.Property(n => n.IsSent)
+        builder.Property(n => n.Url)
+            .IsRequired()
+            .HasMaxLength(500);
+
+        builder.Property(a => a.TotalEpisodes)
+            .IsRequired(false);
+
+        builder.Property(a => a.EpisodeNumber)
             .IsRequired();
 
-        builder.Property(n => n.CreatedAt)
+        builder.Property(n => n.Status)
             .IsRequired();
 
-        builder.Property(n => n.SentAt)
+        builder.Property(n => n.Error)
             .IsRequired(false);
 
         // TODO:
         // builder.HasIndex(n => n.UserId);
         // builder.HasIndex(n => n.AnimeId);
-        // builder.HasIndex(n => new { n.UserId, n.IsSent });
+        // builder.HasIndex(n => new { n.UserId, n.Status });
     }
 }

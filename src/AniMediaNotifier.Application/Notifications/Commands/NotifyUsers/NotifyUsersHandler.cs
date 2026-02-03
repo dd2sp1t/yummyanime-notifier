@@ -1,6 +1,9 @@
+using AniMediaNotifier.Application.AniMedia;
+using AniMediaNotifier.Application.Notifications.Senders;
 using AniMediaNotifier.Application.Persistence;
 using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
+using AniMediaNotifier.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,33 +18,39 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
     private readonly ILogger<NotifyUsersHandler> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly SemaphoreSlim _semaphore;
+    private readonly string _domain;
 
     public NotifyUsersHandler(
         IAnimeRepository animeRepository,
         ISubscriptionRepository subscriptionRepository,
         ILogger<NotifyUsersHandler> logger,
         IServiceScopeFactory serviceScopeFactory,
-        IOptions<NotificationSettings> options)
+        IOptions<NotificationSettings> notificationSettings,
+        IOptions<AniMediaSiteData> aniMediaSiteData)
     {
         _animeRepository = animeRepository;
         _subscriptionRepository = subscriptionRepository;
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
 
-        var notificationSettings = options.Value;
-        _semaphore = new(notificationSettings.MaxParallelism);
+        _semaphore = new(notificationSettings.Value.MaxParallelism);
+        _domain = aniMediaSiteData.Value.Domain;
     }
 
     public async Task<Unit> Handle(NotifyUsersCommand request, CancellationToken cancellationToken)
     {
         var anime = await _animeRepository.GetAsync(request.AnimeId, cancellationToken);
 
-        var message = $"{anime.RuName}: вышла серия {request.EpisodeNumber}/{anime.TotalEpisodeCount}";
-
         var subscriptions = await _subscriptionRepository.FindByAnimeIdAsync(request.AnimeId, cancellationToken);
 
         var tasks = subscriptions
-            .Select(s => TryNotifyAsync(s.UserId, s.AnimeId, request.EpisodeNumber, message))
+            .Select(s => TryNotifyAsync(
+                s.UserId,
+                s.AnimeId,
+                anime.RuName,
+                url: $"{_domain}{anime.SourceLink}",
+                anime.TotalEpisodes,
+                request.EpisodeNumber))
             .ToArray();
 
         await Task.WhenAll(tasks);
@@ -49,13 +58,19 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
         return Unit.Value;
     }
 
-    private async Task TryNotifyAsync(Guid userId, Guid animeId, int episodeNumber, string message)
+    private async Task TryNotifyAsync(
+        Guid userId,
+        Guid animeId,
+        string ruName,
+        string url,
+        int? totalEpisodes,
+        int episodeNumber)
     {
         await _semaphore.WaitAsync();
 
         try
         {
-            await NotifyAsync(userId, animeId, episodeNumber, message);
+            await NotifyAsync(userId, animeId, ruName, url, totalEpisodes, episodeNumber);
         }
         catch (Exception exception)
         {
@@ -72,7 +87,13 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
         }
     }
 
-    private async Task NotifyAsync(Guid userId, Guid animeId, int episodeNumber, string message)
+    private async Task NotifyAsync(
+        Guid userId,
+        Guid animeId,
+        string ruName,
+        string url,
+        int? totalEpisodes,
+        int episodeNumber)
     {
         using var scope = _serviceScopeFactory.CreateScope();
 
@@ -81,24 +102,29 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
         var notificationSender = scope.ServiceProvider.GetRequiredService<INotificationSender>();
 
         var notification = await notificationRepository.FindAsync(userId, animeId, episodeNumber);
-        if (notification is { SentAt: not null })
+        if (notification is { Status: not NotificationStatus.Pending })
         {
             return;
         }
 
         if (notification is null)
         {
-            notification = Notification.Create(userId, animeId, episodeNumber, message);
+            notification = Notification.Create(userId, animeId, ruName, url, totalEpisodes, episodeNumber);
             notificationRepository.Add(notification);
-
             await unitOfWork.SaveChangesAsync();
         }
 
-        await notificationSender.SendAsync(notification);
+        var result = await notificationSender.TrySendAsync(notification);
+        if (result.Success)
+        {
+            notification.MarkAsSent();
+        }
+        else
+        {
+            notification.MarkAsFailed(result.Error);
+        }
 
-        notification.MarkAsSent();
         await notificationRepository.UpdateAsync(notification);
-
         await unitOfWork.SaveChangesAsync();
     }
 }

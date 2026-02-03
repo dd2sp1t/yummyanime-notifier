@@ -35,10 +35,10 @@ public class DbAnimeConfig : IEntityTypeConfiguration<DbAnime>
             .IsRequired()
             .HasConversion<int>();
 
-        builder.Property(a => a.ReleasedEpisodeCount)
+        builder.Property(a => a.ReleasedEpisodes)
             .IsRequired();
 
-        builder.Property(a => a.TotalEpisodeCount)
+        builder.Property(a => a.TotalEpisodes)
             .IsRequired(false);
 
         builder.HasMany(a => a.Subscriptions)

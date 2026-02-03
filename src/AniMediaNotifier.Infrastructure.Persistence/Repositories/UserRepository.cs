@@ -52,4 +52,19 @@ internal class UserRepository : IUserRepository
 
         return User.FromExisting(dbUser.Id, dbUser.TelegramUserId);
     }
+
+    public async Task<User> GetAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var dbUser = await _dbContext.Users
+            .AsNoTracking()
+            .Include(u => u.Subscriptions)
+            .SingleAsync(u => u.Id == id, cancellationToken);
+
+        if (dbUser is null)
+        {
+            return null;
+        }
+
+        return User.FromExisting(dbUser.Id, dbUser.TelegramUserId);
+    }
 }

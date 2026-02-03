@@ -13,19 +13,19 @@ public class Anime
     public int Year { get; private set; }
     public AnimeType Type { get; private set; }
     public AnimeStatus Status { get; private set; }
-    public int ReleasedEpisodeCount { get; private set; }
-    public int? TotalEpisodeCount { get; private set; }
+    public int ReleasedEpisodes { get; private set; }
+    public int? TotalEpisodes { get; private set; }
 
-    public bool TryUpdateReleasedEpisode(int episodeNumber)
+    public bool TryUpdateReleasedEpisodes(int episodeNumber)
     {
-        if (episodeNumber <= ReleasedEpisodeCount)
+        if (episodeNumber <= ReleasedEpisodes)
         {
             return false;
         }
 
-        ReleasedEpisodeCount = episodeNumber;
+        ReleasedEpisodes = episodeNumber;
 
-        if (TotalEpisodeCount.HasValue && ReleasedEpisodeCount >= TotalEpisodeCount)
+        if (TotalEpisodes.HasValue && ReleasedEpisodes >= TotalEpisodes)
         {
             Status = AnimeStatus.Finished;
         }
@@ -47,8 +47,8 @@ public class Anime
         int year,
         AnimeType type,
         AnimeStatus status,
-        int releasedEpisodeCount,
-        int? totalEpisodeCount)
+        int releasedEpisodes,
+        int? totalEpisodes)
     {
         if (string.IsNullOrWhiteSpace(sourceLink))
         {
@@ -100,8 +100,8 @@ public class Anime
             Year = year,
             Type = type,
             Status = status,
-            ReleasedEpisodeCount = releasedEpisodeCount,
-            TotalEpisodeCount = totalEpisodeCount
+            ReleasedEpisodes = releasedEpisodes,
+            TotalEpisodes = totalEpisodes
         };
 
         return anime;
@@ -116,8 +116,8 @@ public class Anime
         int year,
         AnimeType type,
         AnimeStatus status,
-        int releasedEpisodeCount,
-        int? totalEpisodeCount)
+        int releasedEpisodes,
+        int? totalEpisodes)
     {
         return new Anime
         {
@@ -129,8 +129,8 @@ public class Anime
             Year = year,
             Type = type,
             Status = status,
-            ReleasedEpisodeCount = releasedEpisodeCount,
-            TotalEpisodeCount = totalEpisodeCount
+            ReleasedEpisodes = releasedEpisodes,
+            TotalEpisodes = totalEpisodes
         };
     }
 

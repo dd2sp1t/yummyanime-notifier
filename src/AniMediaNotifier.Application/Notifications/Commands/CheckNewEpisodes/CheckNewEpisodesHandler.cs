@@ -51,12 +51,12 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
                 p.RuName,
                 p.EpisodeNumber,
                 AnimeId = a.Id,
-                a.ReleasedEpisodeCount,
-                a.TotalEpisodeCount
+                a.ReleasedEpisodes,
+                a.TotalEpisodes
             });
 
         var outboxMessages = joined
-            .Where(j => j.EpisodeNumber > j.ReleasedEpisodeCount)
+            .Where(j => j.EpisodeNumber > j.ReleasedEpisodes)
             .Select(j =>
             {
                 var @event = new NewEpisodeDetectedEvent(j.AnimeId, j.EpisodeNumber);

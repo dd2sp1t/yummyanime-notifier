@@ -13,8 +13,8 @@ public class DbAnime
     public int Year { get; set; }
     public AnimeType Type { get; set; }
     public AnimeStatus Status { get; set; }
-    public int ReleasedEpisodeCount { get; set; }
-    public int? TotalEpisodeCount { get; set; }
+    public int ReleasedEpisodes { get; set; }
+    public int? TotalEpisodes { get; set; }
 
     public ICollection<DbSubscription> Subscriptions { get; set; }
     public ICollection<DbNotification> Notifications { get; set; }

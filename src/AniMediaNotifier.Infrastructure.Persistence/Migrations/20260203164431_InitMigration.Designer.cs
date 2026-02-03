@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AniMediaDbContext))]
-    [Migration("20260202150844_InitMigration")]
+    [Migration("20260203164431_InitMigration")]
     partial class InitMigration
     {
         /// <inheritdoc />
@@ -34,7 +34,7 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ReleasedEpisodeCount")
+                    b.Property<int>("ReleasedEpisodes")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("RuName")
@@ -50,7 +50,7 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("TotalEpisodeCount")
+                    b.Property<int?>("TotalEpisodes")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Type")
@@ -84,15 +84,26 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
                     b.Property<int>("EpisodeNumber")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsSent")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(1024)
+                    b.Property<string>("Error")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("SentAt")
+                    b.Property<string>("RuName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("TotalEpisodes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -168,7 +179,8 @@ namespace AniMediaNotifier.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("TelegramUserId")
+                    b.Property<long?>("TelegramUserId")
+                        .IsRequired()
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");

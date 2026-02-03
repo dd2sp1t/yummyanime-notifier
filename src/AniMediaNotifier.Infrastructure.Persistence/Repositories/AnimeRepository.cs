@@ -34,8 +34,8 @@ internal class AnimeRepository : IAnimeRepository
             dbAnime.Year,
             dbAnime.Type,
             dbAnime.Status,
-            dbAnime.ReleasedEpisodeCount,
-            dbAnime.TotalEpisodeCount);
+            dbAnime.ReleasedEpisodes,
+            dbAnime.TotalEpisodes);
     }
 
     public async Task<Anime> FindByRuNameAsync(string ruName, CancellationToken cancellationToken)
@@ -58,8 +58,8 @@ internal class AnimeRepository : IAnimeRepository
             dbAnime.Year,
             dbAnime.Type,
             dbAnime.Status,
-            dbAnime.ReleasedEpisodeCount,
-            dbAnime.TotalEpisodeCount);
+            dbAnime.ReleasedEpisodes,
+            dbAnime.TotalEpisodes);
     }
 
     public async Task<Anime> GetAsync(Guid id, CancellationToken cancellationToken)
@@ -77,8 +77,8 @@ internal class AnimeRepository : IAnimeRepository
             dbAnime.Year,
             dbAnime.Type,
             dbAnime.Status,
-            dbAnime.ReleasedEpisodeCount,
-            dbAnime.TotalEpisodeCount);
+            dbAnime.ReleasedEpisodes,
+            dbAnime.TotalEpisodes);
     }
 
     public void Add(Anime anime)
@@ -93,8 +93,8 @@ internal class AnimeRepository : IAnimeRepository
             Year = anime.Year,
             Type = anime.Type,
             Status = anime.Status,
-            ReleasedEpisodeCount = anime.ReleasedEpisodeCount,
-            TotalEpisodeCount = anime.TotalEpisodeCount
+            ReleasedEpisodes = anime.ReleasedEpisodes,
+            TotalEpisodes = anime.TotalEpisodes
         };
         _dbContext.Animes.Add(dbAnime);
     }
@@ -103,7 +103,7 @@ internal class AnimeRepository : IAnimeRepository
     {
         var dbAnime = await _dbContext.Animes.SingleAsync(a => a.Id == anime.Id, cancellationToken);
 
-        dbAnime.ReleasedEpisodeCount = anime.ReleasedEpisodeCount;
+        dbAnime.ReleasedEpisodes = anime.ReleasedEpisodes;
         dbAnime.Status = anime.Status;
         dbAnime.UpdatedAt = DateTimeOffset.UtcNow;
     }

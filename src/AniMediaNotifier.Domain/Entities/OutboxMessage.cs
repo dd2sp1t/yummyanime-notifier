@@ -54,8 +54,7 @@ namespace AniMediaNotifier.Domain.Entities
                 CreatedAt = DateTimeOffset.UtcNow,
                 EventType = @event.GetType().AssemblyQualifiedName,
                 Payload = JsonSerializer.Serialize(@event),
-                Status = OutboxMessageStatus.Pending,
-                Error = null
+                Status = OutboxMessageStatus.Pending
             };
         }
 
