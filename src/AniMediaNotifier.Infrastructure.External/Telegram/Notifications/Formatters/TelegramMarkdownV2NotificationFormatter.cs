@@ -1,11 +1,12 @@
 using System.Text.RegularExpressions;
+using AniMediaNotifier.Application.Notifications.Formatters;
+using AniMediaNotifier.Application.Notifications.Formatters.Enums;
+using AniMediaNotifier.Application.Notifications.Formatters.Models;
 using AniMediaNotifier.Domain.Entities;
-using AniMediaNotifier.Infrastructure.External.Notifications.Formatters.Enums;
-using AniMediaNotifier.Infrastructure.External.Notifications.Formatters.Models;
 
-namespace AniMediaNotifier.Infrastructure.External.Notifications.Formatters;
+namespace AniMediaNotifier.Infrastructure.External.Telegram.Notifications.Formatters;
 
-internal sealed class MarkdownNotificationFormatter : INotificationFormatter
+internal sealed class TelegramMarkdownV2NotificationFormatter : INotificationFormatter
 {
     public FormattedMessage Format(Notification notification)
     {
@@ -27,7 +28,7 @@ $"""
 
         return new FormattedMessage(
             Text: text,
-            ParseMode: NotificationParseMode.Markdown);
+            Format: NotificationFormat.MarkdownV2);
     }
 
     private static string EscapeMarkdownV2(string text)

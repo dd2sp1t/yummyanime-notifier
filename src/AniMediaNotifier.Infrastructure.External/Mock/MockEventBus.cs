@@ -2,7 +2,7 @@ using System.Text.Json;
 using AniMediaNotifier.Application.Events;
 using AniMediaNotifier.Domain.Events;
 
-namespace AniMediaNotifier.Infrastructure.External.Events;
+namespace AniMediaNotifier.Infrastructure.External.Mock;
 
 public class MockEventBus : IEventBus
 {

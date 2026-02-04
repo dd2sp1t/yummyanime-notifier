@@ -1,8 +1,9 @@
 using System.Text.Json;
 using AniMediaNotifier.Application.Notifications.Senders;
+using AniMediaNotifier.Application.Notifications.Senders.Models;
 using AniMediaNotifier.Domain.Entities;
 
-namespace AniMediaNotifier.Infrastructure.External.Notifications.Senders;
+namespace AniMediaNotifier.Infrastructure.External.Mock;
 
 public class MockNotificationSender : INotificationSender
 {

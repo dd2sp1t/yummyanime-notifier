@@ -4,7 +4,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using AniMediaNotifier.Application.Subscriptions.Commands.CancelSubscriptions;
 
-namespace AniMediaNotifier.Infrastructure.External.Events.MassTransit.Consumers;
+namespace AniMediaNotifier.Infrastructure.External.MassTransit.Consumers;
 
 public class AnimeFinished_CancelSubscribtionsConsumer : IConsumer<AnimeFinishedEvent>
 {

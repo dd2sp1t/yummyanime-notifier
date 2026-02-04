@@ -4,7 +4,7 @@ using MassTransit;
 using AniMediaNotifier.Application.Anime.Commands.UpdateAnime;
 using Microsoft.Extensions.Logging;
 
-namespace AniMediaNotifier.Infrastructure.External.Events.MassTransit.Consumers;
+namespace AniMediaNotifier.Infrastructure.External.MassTransit.Consumers;
 
 public class NewEpisodeDetected_UpdateAnimeConsumer : IConsumer<NewEpisodeDetectedEvent>
 {

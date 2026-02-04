@@ -2,7 +2,7 @@ using AniMediaNotifier.Application.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-namespace AniMediaNotifier.Infrastructure.External.Events.MassTransit;
+namespace AniMediaNotifier.Infrastructure.External.MassTransit;
 
 public class MassTransitEventBus : IEventBus
 {

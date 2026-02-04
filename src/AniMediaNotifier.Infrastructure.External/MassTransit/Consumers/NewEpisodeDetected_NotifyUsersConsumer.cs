@@ -4,7 +4,7 @@ using MediatR;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-namespace AniMediaNotifier.Infrastructure.External.Events.MassTransit.Consumers;
+namespace AniMediaNotifier.Infrastructure.External.MassTransit.Consumers;
 
 public class NewEpisodeDetected_NotifyUsersConsumer : IConsumer<NewEpisodeDetectedEvent>
 {

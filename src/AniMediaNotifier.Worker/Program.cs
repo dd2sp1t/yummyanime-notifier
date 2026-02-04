@@ -13,7 +13,7 @@ builder.Services
 builder.Logging.AddFilter("MassTransit", LogLevel.Debug);
 
 // builder.Services.AddHostedService<EpisodeTrackingHostedService>();
-builder.Services.AddHostedService<OutboxPublisherHostedService>();
+// builder.Services.AddHostedService<OutboxPublisherHostedService>();
 
 var host = builder.Build();
 host.Run();

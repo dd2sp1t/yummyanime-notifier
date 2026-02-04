@@ -4,25 +4,25 @@ using AniMediaNotifier.Application.Persistence.Repositories;
 
 namespace AniMediaNotifier.Worker.BackgroundServices;
 
-internal class OutboxPublisherHostedService : BackgroundService
+internal class OutboxPublisherBackgroundService : BackgroundService
 {
     // TODO: use IOptions
     private const int MaxCount = 10;
     private const int MillisecondsDelay = 100_000;
-    private readonly ILogger<OutboxPublisherHostedService> _logger;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<OutboxPublisherBackgroundService> _logger;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public OutboxPublisherHostedService(
-        ILogger<OutboxPublisherHostedService> logger,
-        IServiceProvider serviceProvider)
+    public OutboxPublisherBackgroundService(
+        ILogger<OutboxPublisherBackgroundService> logger,
+        IServiceScopeFactory serviceScopeFactory)
     {
         _logger = logger;
-        _serviceProvider = serviceProvider;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = _serviceScopeFactory.CreateScope();
 
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var outboxMessageRepository = scope.ServiceProvider.GetRequiredService<IOutboxMessageRepository>();

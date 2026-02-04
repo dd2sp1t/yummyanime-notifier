@@ -1,14 +1,15 @@
+using AniMediaNotifier.Application.Notifications.Formatters;
+using AniMediaNotifier.Application.Notifications.Formatters.Enums;
 using AniMediaNotifier.Application.Notifications.Senders;
+using AniMediaNotifier.Application.Notifications.Senders.Models;
 using AniMediaNotifier.Application.Persistence.Repositories;
 using AniMediaNotifier.Domain.Entities;
-using AniMediaNotifier.Infrastructure.External.Notifications.Formatters;
-using AniMediaNotifier.Infrastructure.External.Notifications.Formatters.Enums;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace AniMediaNotifier.Infrastructure.External.Notifications.Senders.Telegram;
+namespace AniMediaNotifier.Infrastructure.External.Telegram.Notifications;
 
 public class TelegramNotificationSender : INotificationSender
 {
@@ -43,10 +44,10 @@ public class TelegramNotificationSender : INotificationSender
         {
             var chatId = new ChatId(user.TelegramUserId.Value);
             var message = _formatter.Format(notification);
-            var parseMode = message.ParseMode switch
+            var parseMode = message.Format switch
             {
-                NotificationParseMode.Markdown => ParseMode.MarkdownV2,
-                NotificationParseMode.Html => ParseMode.Html,
+                NotificationFormat.MarkdownV2 => ParseMode.MarkdownV2,
+                NotificationFormat.Html => ParseMode.Html,
                 _ => ParseMode.None
             };
 
