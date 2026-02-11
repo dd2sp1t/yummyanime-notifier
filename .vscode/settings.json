@@ -1,5 +1,5 @@
 {
-  "dotnet.defaultSolution": "AniMediaNotifier.sln",
+  "dotnet.defaultSolution": "YummyAnimeNotifier.sln",
   "editor.formatOnSave": true,
   "files.exclude": {
     "**/bin": true,

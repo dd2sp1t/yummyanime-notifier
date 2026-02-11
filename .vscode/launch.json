@@ -6,8 +6,8 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/src/AniMediaNotifier.Api/bin/Debug/net8.0/AniMediaNotifier.Api.dll",
-      "cwd": "${workspaceFolder}/src/AniMediaNotifier.Api",
+      "program": "${workspaceFolder}/src/YummyAnimeNotifier.Api/bin/Debug/net8.0/YummyAnimeNotifier.Api.dll",
+      "cwd": "${workspaceFolder}/src/YummyAnimeNotifier.Api",
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
@@ -18,8 +18,8 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/src/AniMediaNotifier.Worker/bin/Debug/net8.0/AniMediaNotifier.Worker.dll",
-      "cwd": "${workspaceFolder}/src/AniMediaNotifier.Worker",
+      "program": "${workspaceFolder}/src/YummyAnimeNotifier.Worker/bin/Debug/net8.0/YummyAnimeNotifier.Worker.dll",
+      "cwd": "${workspaceFolder}/src/YummyAnimeNotifier.Worker",
       "env": {
         "DOTNET_ENVIRONMENT": "Development"
       },
