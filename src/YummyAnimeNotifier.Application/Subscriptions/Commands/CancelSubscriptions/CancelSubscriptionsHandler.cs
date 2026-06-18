@@ -19,31 +19,31 @@ public class CancelSubscriptionsHandler : IRequestHandler<CancelSubscriptionsCom
 
     public async Task<Unit> Handle(CancelSubscriptionsCommand request, CancellationToken cancellationToken)
     {
-        var skip = 0;
+        // DDD
+        // while (true)
+        // {
+        //     var batch = await _subscriptionRepository.GetByAnimeId(
+        //         request.AnimeId,
+        //         take: BatchSize,
+        //         skip: 0,
+        //         cancellationToken);
 
-        while (true)
-        {
-            var batch = await _subscriptionRepository.GetByAnimeId(
-                request.AnimeId,
-                take: BatchSize,
-                skip,
-                cancellationToken);
+        //     if (batch.Length == 0)
+        //     {
+        //         break;
+        //     }
 
-            if (batch.Length == 0)
-            {
-                break;
-            }
+        //     foreach (var sub in batch)
+        //     {
+        //         sub.Cancel();
+        //     }
 
-            foreach (var sub in batch)
-            {
-                sub.Cancel();
-            }
+        //     await _subscriptionRepository.UpdateRangeAsync(batch, cancellationToken);
+        //     await _unitOfWork.SaveChangesAsync(cancellationToken);
+        // }
 
-            await _subscriptionRepository.UpdateRangeAsync(batch, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            skip += batch.Length;
-        }
+        // optimized
+        await _subscriptionRepository.CancelByAnimeIdAsync(request.AnimeId, cancellationToken);
 
         return Unit.Value;
     }

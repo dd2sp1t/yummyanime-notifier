@@ -33,7 +33,7 @@ internal static class ServiceCollectionExtensions
                 var settings = sp.GetRequiredService<IOptions<YummyAnimeClientSettings>>().Value;
                 client.BaseAddress = new Uri(settings.BaseAddress);
                 client.Timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
-
+                client.DefaultRequestHeaders.Add("X-Application", settings.Token);
             })
             .AddPolicyHandler((sp, request) =>
             {

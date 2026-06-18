@@ -79,8 +79,10 @@ internal class SubscriptionRepository : ISubscriptionRepository
     {
         var dbSub = new DbSubscription
         {
+            Id = subscription.Id,
             UserId = subscription.UserId,
             AnimeId = subscription.AnimeId,
+            TranslationSourceId = subscription.TranslationSourceId,
             CreatedAt = subscription.CreatedAt,
             UpdatedAt = subscription.UpdatedAt,
             IsDeleted = subscription.IsDeleted
@@ -130,23 +132,31 @@ internal class SubscriptionRepository : ISubscriptionRepository
             return;
         }
 
-        var domainByKey = subscriptions.ToDictionary(s => (s.UserId, s.AnimeId));
-
-        var userIds = subscriptions.Select(s => s.UserId).Distinct().ToArray();
-        var animeIds = subscriptions.Select(s => s.AnimeId).Distinct().ToArray();
-
+        var subIds = subscriptions.Select(s => s.Id).ToArray();
         var dbSubscriptions = await _dbContext.Subscriptions
-            .Where(db => userIds.Contains(db.UserId) && animeIds.Contains(db.AnimeId))
+            .Where(db => subIds.Contains(db.Id))
             .ToArrayAsync(cancellationToken);
+
+        var domainByKey = subscriptions.ToDictionary(keySelector: s => s.Id);
 
         foreach (var dbSub in dbSubscriptions)
         {
-            var key = (dbSub.UserId, dbSub.AnimeId);
-            if (domainByKey.TryGetValue(key, out var domainSub))
+            if (domainByKey.TryGetValue(dbSub.Id, out var domainSub))
             {
                 dbSub.IsDeleted = domainSub.IsDeleted;
                 dbSub.UpdatedAt = domainSub.UpdatedAt;
             }
         }
+    }
+
+    public Task CancelByAnimeIdAsync(Guid animeId, CancellationToken cancellationToken)
+    {
+        return _dbContext.Subscriptions
+            .Where(s => s.AnimeId == animeId && s.IsDeleted == false)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(s => s.IsDeleted, true)
+                    .SetProperty(s => s.UpdatedAt, DateTimeOffset.UtcNow),
+                cancellationToken);
     }
 }

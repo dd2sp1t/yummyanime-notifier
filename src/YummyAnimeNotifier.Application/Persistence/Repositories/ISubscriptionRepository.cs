@@ -25,4 +25,6 @@ public interface ISubscriptionRepository
         CancellationToken cancellationToken = default);
 
     Task UpdateRangeAsync(Subscription[] subscriptions, CancellationToken cancellationToken = default);
+
+    Task CancelByAnimeIdAsync(Guid animeId, CancellationToken cancellationToken = default);
 }

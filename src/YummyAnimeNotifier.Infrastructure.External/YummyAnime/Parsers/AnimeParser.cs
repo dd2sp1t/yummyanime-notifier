@@ -8,6 +8,18 @@ namespace YummyAnimeNotifier.Infrastructure.External.YummyAnime.Parsers;
 
 internal class AnimeParser : IAnimeParser
 {
+    private static readonly Regex _xEpisodeCountRegex;
+    private static readonly Regex _xyEpisodeCountRegex;
+
+    static AnimeParser()
+    {
+        // "Количество серий: X"
+        _xEpisodeCountRegex = new(@"^\d+$", RegexOptions.Compiled);
+
+        // "Вышло серий: X из Y"
+        _xyEpisodeCountRegex = new(@"^(\d+)\s+из\s+(\d+)$", RegexOptions.Compiled);
+    }
+
     public ParsedAnime Parse(string html)
     {
         var doc = new HtmlDocument();
@@ -123,8 +135,7 @@ internal class AnimeParser : IAnimeParser
             return null;
         }
 
-        // "Вышло серий: X из Y"
-        var xyMatch = Regex.Match(text, @"^(\d+)\s+из\s+(\d+)$");
+        var xyMatch = _xyEpisodeCountRegex.Match(text);
         if (xyMatch.Success)
         {
             return int.TryParse(xyMatch.Groups[2].Value, out var yValue)
@@ -132,8 +143,7 @@ internal class AnimeParser : IAnimeParser
                 : null;
         }
 
-        // "Количество серий: X"
-        var xMatch = Regex.Match(text, @"^\d+$");
+        var xMatch = _xEpisodeCountRegex.Match(text);
         return xMatch.Success && int.TryParse(xMatch.Value, out var xValue)
             ? xValue
             : null;
@@ -153,8 +163,7 @@ internal class AnimeParser : IAnimeParser
             return null;
         }
 
-        // "Вышло серий: X из Y"
-        var xyMatch = Regex.Match(text, @"^(\d+)\s+из\s+\d+$");
+        var xyMatch = _xyEpisodeCountRegex.Match(text);
         if (xyMatch.Success)
         {
             return int.TryParse(xyMatch.Groups[1].Value, out var xValue)
@@ -162,8 +171,7 @@ internal class AnimeParser : IAnimeParser
                 : null;
         }
 
-        // "Количество серий: X"
-        var xMatch = Regex.Match(text, @"^\d+$");
+        var xMatch = _xEpisodeCountRegex.Match(text);
         return xMatch.Success && int.TryParse(xMatch.Value, out var singleValue)
             ? singleValue
             : null;
