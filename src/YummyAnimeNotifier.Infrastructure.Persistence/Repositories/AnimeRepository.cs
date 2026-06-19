@@ -128,10 +128,11 @@ internal class AnimeRepository : IAnimeRepository
         dbAnime.UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    // TODO: rename to FilterExistingNamesWithActiveSubscriptionsAsync ??
     public Task<string[]> FilterExistingNamesAsync(string[] names, CancellationToken cancellationToken)
     {
         var existing = _dbContext.Anime
-            .Where(a => names.Contains(a.Name))
+            .Where(a => names.Contains(a.Name) && a.Subscriptions.Any(s => s.IsDeleted == false))
             .Select(a => a.Name)
             .ToArrayAsync(cancellationToken);
 

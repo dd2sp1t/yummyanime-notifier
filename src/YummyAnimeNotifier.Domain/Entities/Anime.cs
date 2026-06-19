@@ -26,7 +26,7 @@ public class Anime
         ReleasedEpisodes = episodeNumber;
         UpdatedAt = DateTimeOffset.UtcNow;
 
-        if (TotalEpisodes.HasValue && ReleasedEpisodes >= TotalEpisodes)
+        if (TotalEpisodes.HasValue && ReleasedEpisodes == TotalEpisodes)
         {
             Status = AnimeStatus.Finished;
         }

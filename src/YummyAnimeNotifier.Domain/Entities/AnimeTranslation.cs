@@ -8,9 +8,9 @@ public class AnimeTranslation
     public Guid TranslationSourceId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
-    public AnimeStatus Status { get; private set; }
+    public AnimeTranslationStatus Status { get; private set; }
     public int? TotalEpisodes { get; private set; }
-    public int? ReleasedEpisodes { get; private set; }
+    public int ReleasedEpisodes { get; private set; }
 
     public bool TryUpdateReleasedEpisodes(int episodeNumber)
     {
@@ -22,29 +22,30 @@ public class AnimeTranslation
         ReleasedEpisodes = episodeNumber;
         UpdatedAt = DateTimeOffset.UtcNow;
 
-        if (TotalEpisodes.HasValue && ReleasedEpisodes >= TotalEpisodes)
+        if (TotalEpisodes.HasValue && ReleasedEpisodes == TotalEpisodes)
         {
-            Status = AnimeStatus.Finished;
+            Status = AnimeTranslationStatus.Finished;
         }
 
         return true;
     }
 
-    public bool IsFinished => Status == AnimeStatus.Finished;
+    public bool IsFinished => Status == AnimeTranslationStatus.Finished;
 
     public static AnimeTranslation Create(
         Guid animeId,
         Guid translationSourceId,
-        AnimeStatus status,
         int? totalEpisodes,
-        int? releasedEpisodes)
+        int releasedEpisodes)
     {
         return new AnimeTranslation
         {
             AnimeId = animeId,
             TranslationSourceId = translationSourceId,
             CreatedAt = DateTimeOffset.UtcNow,
-            Status = status,
+            Status = totalEpisodes.HasValue && totalEpisodes == releasedEpisodes
+                ? AnimeTranslationStatus.Finished
+                : AnimeTranslationStatus.Ongoing,
             TotalEpisodes = totalEpisodes,
             ReleasedEpisodes = releasedEpisodes
         };
@@ -55,9 +56,9 @@ public class AnimeTranslation
         Guid translationSourceId,
         DateTimeOffset createdAt,
         DateTimeOffset? updatedAt,
-        AnimeStatus status,
+        AnimeTranslationStatus status,
         int? totalEpisodes,
-        int? releasedEpisodes)
+        int releasedEpisodes)
     {
         return new AnimeTranslation
         {

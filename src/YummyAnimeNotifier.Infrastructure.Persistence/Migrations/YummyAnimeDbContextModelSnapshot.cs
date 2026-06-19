@@ -75,7 +75,7 @@ namespace YummyAnimeNotifier.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ReleasedEpisodes")
+                    b.Property<int>("ReleasedEpisodes")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Status")
@@ -258,6 +258,9 @@ namespace YummyAnimeNotifier.Infrastructure.Persistence.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Type", "Name")
+                        .IsUnique();
 
                     b.ToTable("TranslationSource", (string)null);
                 });

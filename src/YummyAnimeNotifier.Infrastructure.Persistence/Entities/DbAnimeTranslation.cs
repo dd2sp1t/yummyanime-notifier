@@ -8,9 +8,9 @@ public class DbAnimeTranslation
     public Guid TranslationSourceId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
-    public AnimeStatus Status { get; set; }
+    public AnimeTranslationStatus Status { get; set; }
     public int? TotalEpisodes { get; set; }
-    public int? ReleasedEpisodes { get; set; }
+    public int ReleasedEpisodes { get; set; }
 
     public DbAnime Anime { get; set; }
     public DbTranslationSource TranslationSource { get; set; }

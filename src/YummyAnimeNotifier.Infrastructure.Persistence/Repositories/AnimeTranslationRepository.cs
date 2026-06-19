@@ -62,9 +62,11 @@ internal class AnimeTranslationRepository : IAnimeTranslationRepository
             .Where(at => at.Anime.Name == animeName
                     && at.TranslationSource.Type == translationType
                     && translationSourceNames.Contains(at.TranslationSource.Name))
-            .Select(at => AnimeTranslation.Create(
+            .Select(at => AnimeTranslation.FromExisting(
                 at.AnimeId,
                 at.TranslationSourceId,
+                at.CreatedAt,
+                at.UpdatedAt,
                 at.Status,
                 at.TotalEpisodes,
                 at.ReleasedEpisodes))

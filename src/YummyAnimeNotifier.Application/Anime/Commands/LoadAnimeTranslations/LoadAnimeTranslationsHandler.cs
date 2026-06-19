@@ -48,42 +48,41 @@ public class LoadAnimeTranslationsHandler : IRequestHandler<LoadAnimeTranslation
 
         var translationSources = await GetTranslationSourcesAsync(animeTranslationDescriptors, cancellationToken);
 
-        var joined = animeTranslationDescriptors.Join(
-            translationSources,
-            d => new
-            {
-                d.TranslationType,
-                d.TranslationSourceName
-            },
-            ts => new
-            {
-                TranslationType = ts.Type,
-                TranslationSourceName = ts.Name
-            },
-            (d, ts) => new
-            {
-                TranslationSourceId = ts.Id,
-                ReleasedEpisodes = d.MaxEpisodeNumber
-            });
+        var joined = animeTranslationDescriptors
+            .Join(
+                translationSources,
+                d => new
+                {
+                    d.TranslationType,
+                    d.TranslationSourceName
+                },
+                ts => new
+                {
+                    TranslationType = ts.Type,
+                    TranslationSourceName = ts.Name
+                },
+                (d, ts) => new
+                {
+                    TranslationSourceId = ts.Id,
+                    ReleasedEpisodes = d.MaxEpisodeNumber
+                })
+            .ToArray();
 
         var animeTranslations = await _animeTranslationRepository.FindAsync(anime.Id, cancellationToken);
-        var animeTranslationKeySet = animeTranslations
-            .Select(at => new AnimeTranslationKey(at.AnimeId, at.TranslationSourceId))
+        var existingTranslationSourceIdSet = animeTranslations
+            .Select(at => at.TranslationSourceId)
             .ToHashSet();
 
         foreach (var item in joined)
         {
-            var key = new AnimeTranslationKey(anime.Id, item.TranslationSourceId);
-
-            if (animeTranslationKeySet.Contains(key))
+            if (existingTranslationSourceIdSet.Contains(item.TranslationSourceId))
             {
                 continue;
             }
 
             var @new = AnimeTranslation.Create(
-                    key.AnimeId,
-                    key.TranslationSourceId,
-                    anime.Status,
+                    anime.Id,
+                    item.TranslationSourceId,
                     anime.TotalEpisodes,
                     item.ReleasedEpisodes);
 
@@ -153,9 +152,4 @@ public class LoadAnimeTranslationsHandler : IRequestHandler<LoadAnimeTranslation
 
         return [.. result];
     }
-
-    private record AnimeTranslationKey(
-        Guid AnimeId,
-        Guid TranslationSourceId
-    );
 }

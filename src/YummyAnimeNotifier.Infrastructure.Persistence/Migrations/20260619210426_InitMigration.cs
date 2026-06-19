@@ -83,9 +83,9 @@ namespace YummyAnimeNotifier.Infrastructure.Persistence.Migrations
                     TranslationSourceId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    ReleasedEpisodes = table.Column<int>(type: "INTEGER", nullable: true),
+                    Status = table.Column<int>(type: "INTEGER", nullable: false),
                     TotalEpisodes = table.Column<int>(type: "INTEGER", nullable: true),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false)
+                    ReleasedEpisodes = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -251,6 +251,12 @@ namespace YummyAnimeNotifier.Infrastructure.Persistence.Migrations
                 name: "IX_Subscription_UserId_AnimeId_TranslationSourceId",
                 table: "Subscription",
                 columns: new[] { "UserId", "AnimeId", "TranslationSourceId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TranslationSource_Type_Name",
+                table: "TranslationSource",
+                columns: new[] { "Type", "Name" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

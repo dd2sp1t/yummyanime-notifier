@@ -13,7 +13,7 @@ public class AnimeMapper
             parsed.SourceLink,
             parsed.Name,
             MapType(parsed.TypeRaw),
-            MapStatus(parsed.StatusRaw),
+            MapStatus(parsed.StatusRaw, parsed.ReleasedEpisodes, parsed.TotalEpisodes),
             parsed.ReleasedEpisodes,
             parsed.TotalEpisodes);
     }
@@ -31,14 +31,29 @@ public class AnimeMapper
         };
     }
 
-    private static AnimeStatus MapStatus(string raw)
+    private static AnimeStatus MapStatus(string raw, int? releasedEpisodes, int? totalEpisodes)
     {
-        return raw.ToLower() switch
+        var status = raw.ToLower() switch
         {
             "анонс" => AnimeStatus.Preview,
             "онгоинг" => AnimeStatus.Ongoing,
             "вышел" => AnimeStatus.Finished,
             _ => throw new MappingException($"Unknown anime status: '{raw.ToLower()}'")
         };
+
+        return CorrectStatus(status, releasedEpisodes, totalEpisodes);
+    }
+
+    private static AnimeStatus CorrectStatus(AnimeStatus status, int? releasedEpisodes, int? totalEpisodes)
+    {
+        if (status == AnimeStatus.Ongoing
+            && releasedEpisodes.HasValue
+            && totalEpisodes.HasValue
+            && releasedEpisodes == totalEpisodes)
+        {
+            return AnimeStatus.Finished;
+        }
+
+        return status;
     }
 }

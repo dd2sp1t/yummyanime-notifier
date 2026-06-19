@@ -23,6 +23,8 @@ public class NewEpisodeDetected_NotifyUsersConsumer : IConsumer<NewEpisodeDetect
     {
         var @event = context.Message;
 
+        // TODO: create release entity
+
         try
         {
             // await _mediator.Send(new NotifyUsersCommand(@event.AnimeId, @event.EpisodeNumber));

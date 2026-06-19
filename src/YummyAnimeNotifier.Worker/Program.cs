@@ -12,8 +12,8 @@ builder.Services
 
 builder.Logging.AddFilter("MassTransit", LogLevel.Debug);
 
-builder.Services.AddHostedService<EpisodeTrackingBackgroundService>();
-// builder.Services.AddHostedService<OutboxPublisherBackgroundService>();
+// builder.Services.AddHostedService<EpisodeTrackingBackgroundService>();
+builder.Services.AddHostedService<OutboxPublisherBackgroundService>();
 
 var host = builder.Build();
 host.Run();

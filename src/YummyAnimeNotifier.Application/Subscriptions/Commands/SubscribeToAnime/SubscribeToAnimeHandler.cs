@@ -3,6 +3,7 @@ using YummyAnimeNotifier.Application.Persistence.Repositories;
 using YummyAnimeNotifier.Domain.Entities;
 using MediatR;
 using YummyAnimeNotifier.Application.Anime.Commands.LoadAnime;
+using YummyAnimeNotifier.Application.Anime.Commands.LoadAnimeTranslations;
 
 namespace YummyAnimeNotifier.Application.Subscriptions.Commands.SubscribeToAnime;
 
@@ -64,6 +65,11 @@ public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, 
         if (anime is null)
         {
             anime = await _mediator.Send(new LoadAnimeCommand(sourceUri), cancellationToken);
+        }
+        else
+        {
+            // reload anime translations
+            await _mediator.Send(new LoadAnimeTranslationsCommand(anime.Id), cancellationToken);
         }
 
         return anime;

@@ -25,7 +25,7 @@ public class DbAnimeTranslationConfig : IEntityTypeConfiguration<DbAnimeTranslat
             .IsRequired(false);
 
         builder.Property(t => t.ReleasedEpisodes)
-            .IsRequired(false);
+            .IsRequired(true);
 
         builder.HasOne(t => t.Anime)
             .WithMany(a => a.AnimeTranslations)

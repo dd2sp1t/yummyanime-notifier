@@ -34,6 +34,7 @@ internal static class ServiceCollectionExtensions
                 client.BaseAddress = new Uri(settings.BaseAddress);
                 client.Timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
                 client.DefaultRequestHeaders.Add("X-Application", settings.Token);
+                client.DefaultRequestHeaders.Add("Accept-Language", "ru-RU");
             })
             .AddPolicyHandler((sp, request) =>
             {

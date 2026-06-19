@@ -54,30 +54,32 @@ public class Subscription
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = userId,
             AnimeId = animeId,
+            TranslationSourceId = null,
             IsDeleted = false
         };
     }
 
-    // public static Subscription Create(
-    //     Guid userId,
-    //     Guid animeId,
-    //     Guid translationSourceId,
-    //     AnimeStatus animeTranslationStatus)
-    // {
-    //     if (animeTranslationStatus == AnimeStatus.Finished)
-    //     {
-    //         throw new AnimeTranslationAlreadyFinishedException(animeId, translationSourceId);
-    //     }
+    public static Subscription Create(
+        Guid userId,
+        Guid animeId,
+        Guid translationSourceId,
+        AnimeTranslationStatus animeTranslationStatus)
+    {
+        if (animeTranslationStatus == AnimeTranslationStatus.Finished)
+        {
+            throw new AnimeTranslationAlreadyFinishedException(animeId, translationSourceId);
+        }
 
-    //     return new Subscription
-    //     {
-    //         UserId = userId,
-    //         AnimeId = animeId,
-    //         TranslationSourceId = translationSourceId,
-    //         CreatedAt = DateTimeOffset.UtcNow,
-    //         IsDeleted = false
-    //     };
-    // }
+        return new Subscription
+        {
+            Id = Guid.NewGuid(),
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = userId,
+            AnimeId = animeId,
+            TranslationSourceId = translationSourceId,
+            IsDeleted = false
+        };
+    }
 
     public static Subscription FromExisting(
         Guid id,
