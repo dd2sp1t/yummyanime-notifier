@@ -1,32 +1,32 @@
-using YummyAnimeNotifier.Application.Events;
 using YummyAnimeNotifier.Application.Persistence;
 using YummyAnimeNotifier.Application.Persistence.Repositories;
-using YummyAnimeNotifier.Domain.Entities;
 using MediatR;
 
 namespace YummyAnimeNotifier.Application.Anime.Commands.UpdateAnime;
 
 public class UpdateAnimeHandler : IRequestHandler<UpdateAnimeCommand, Unit>
 {
+    private readonly IReleaseRepository _releaseRepository;
     private readonly IAnimeRepository _animeRepository;
-    private readonly IOutboxMessageRepository _outboxMessageRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateAnimeHandler(
+        IReleaseRepository releaseRepository,
         IAnimeRepository animeRepository,
-        IOutboxMessageRepository outboxMessageRepository,
         IUnitOfWork unitOfWork)
     {
+        _releaseRepository = releaseRepository;
         _animeRepository = animeRepository;
-        _outboxMessageRepository = outboxMessageRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Unit> Handle(UpdateAnimeCommand request, CancellationToken cancellationToken)
     {
-        var anime = await _animeRepository.GetAsync(request.AnimeId, cancellationToken);
+        var release = await _releaseRepository.GetAsync(request.ReleaseId, cancellationToken);
 
-        var updated = anime.TryUpdateReleasedEpisodes(request.EpisodeNumber);
+        var anime = await _animeRepository.GetAsync(release.AnimeId, cancellationToken);
+
+        var updated = anime.TryUpdateReleasedEpisodes(release.EpisodeNumber);
 
         if (updated == false)
         {
@@ -34,12 +34,6 @@ public class UpdateAnimeHandler : IRequestHandler<UpdateAnimeCommand, Unit>
         }
 
         await _animeRepository.UpdateAsync(anime, cancellationToken);
-
-        if (anime.IsFinished)
-        {
-            var @event = new AnimeFinishedEvent(anime.Id);
-            _outboxMessageRepository.Add(OutboxMessage.Create(@event));
-        }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

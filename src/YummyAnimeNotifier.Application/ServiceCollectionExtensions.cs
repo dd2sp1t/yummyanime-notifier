@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<AnimeMapper>();
         services.AddSingleton<AnimeTranslationDescriptorMapper>();
-        services.AddSingleton<AnimeUpdateDescriptorMapper>();
+        services.AddSingleton<AnimeTranslationUpdateDescriptorMapper>();
 
         var assembly = typeof(ServiceCollectionExtensions).Assembly;
 

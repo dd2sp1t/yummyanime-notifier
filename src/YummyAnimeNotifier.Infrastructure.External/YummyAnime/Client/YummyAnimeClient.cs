@@ -12,7 +12,7 @@ internal class YummyAnimeClient : IYummyAnimeClient
         _httpClient = httpClient;
     }
 
-    public async Task<string> GetHtmlStringAsync(Uri uri, CancellationToken cancellationToken)
+    public async Task<HttpFetchResult> GetHtmlStringAsync(Uri uri, CancellationToken cancellationToken)
     {
         var uriBelongToClientDomain = Uri.Compare(
             _httpClient.BaseAddress,
@@ -23,26 +23,34 @@ internal class YummyAnimeClient : IYummyAnimeClient
 
         if (uriBelongToClientDomain == false)
         {
-            throw new YummyAnimeClientException($"Uri '{uri}' does not belong to domain {_httpClient.BaseAddress}");
+            throw new ClientException($"Uri '{uri}' does not belong to domain {_httpClient.BaseAddress}");
         }
 
         var response = await _httpClient.GetAsync(uri.PathAndQuery, cancellationToken);
 
-        response.EnsureSuccessStatusCode();
+        var content = response.Content is null
+            ? null
+            : await response.Content.ReadAsStringAsync(cancellationToken);
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        return content;
+        return new HttpFetchResult(
+            response.IsSuccessStatusCode,
+            (int)response.StatusCode,
+            content);
     }
 
-    public async Task<string> GetVideosJsonAsync(int externalId, CancellationToken cancellationToken = default)
+    public async Task<HttpFetchResult> GetVideosJsonAsync(int externalId, CancellationToken cancellationToken)
     {
         var uri = new Uri(_httpClient.BaseAddress, $"/api/anime/{externalId}/videos");
 
         var response = await _httpClient.GetAsync(uri, cancellationToken);
 
-        response.EnsureSuccessStatusCode();
+        var content = response.Content is null
+            ? null
+            : await response.Content.ReadAsStringAsync(cancellationToken);
 
-        return await response.Content.ReadAsStringAsync(cancellationToken);
+        return new HttpFetchResult(
+            response.IsSuccessStatusCode,
+            (int)response.StatusCode,
+            content);
     }
 }

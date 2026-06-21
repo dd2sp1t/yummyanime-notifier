@@ -6,36 +6,36 @@ using Microsoft.Extensions.Logging;
 
 namespace YummyAnimeNotifier.Infrastructure.External.MassTransit.Consumers;
 
-public class NewEpisodeDetected_NotifyUsersConsumer : IConsumer<NewEpisodeDetectedEvent>
+public class ReleaseCreated_NotifyUsersConsumer : IConsumer<ReleaseCreatedEvent>
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<NewEpisodeDetected_NotifyUsersConsumer> _logger;
+    private readonly ILogger<ReleaseCreated_NotifyUsersConsumer> _logger;
 
-    public NewEpisodeDetected_NotifyUsersConsumer(
+    public ReleaseCreated_NotifyUsersConsumer(
         IMediator mediator,
-        ILogger<NewEpisodeDetected_NotifyUsersConsumer> logger)
+        ILogger<ReleaseCreated_NotifyUsersConsumer> logger)
     {
         _mediator = mediator;
         _logger = logger;
     }
 
-    public async Task Consume(ConsumeContext<NewEpisodeDetectedEvent> context)
+    public async Task Consume(ConsumeContext<ReleaseCreatedEvent> context)
     {
         var @event = context.Message;
 
-        // TODO: create release entity
-
         try
         {
-            // await _mediator.Send(new NotifyUsersCommand(@event.AnimeId, @event.EpisodeNumber));
+            await _mediator.Send(new NotifyUsersCommand(@event.ReleaseId));
         }
         catch (Exception exception)
         {
             _logger.Log(
                 LogLevel.Error,
                 exception,
-                "Failed to notify users about anime {AnimeId}",
-                @event.AnimeId);
+                "Failed to notify users about release {ReleaseId}",
+                @event.ReleaseId);
+
+            // throw;
         }
     }
 }

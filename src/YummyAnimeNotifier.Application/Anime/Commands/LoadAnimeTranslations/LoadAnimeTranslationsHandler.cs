@@ -7,6 +7,7 @@ using YummyAnimeNotifier.Application.YummyAnime.Parsers;
 using YummyAnimeNotifier.Application.YummyAnime.Mappers;
 using YummyAnimeNotifier.Domain.Enums;
 using YummyAnimeNotifier.Application.YummyAnime.Mappers.Models;
+using YummyAnimeNotifier.Application.YummyAnime.Exceptions;
 
 namespace YummyAnimeNotifier.Application.Anime.Commands.LoadAnimeTranslations;
 
@@ -98,9 +99,14 @@ public class LoadAnimeTranslationsHandler : IRequestHandler<LoadAnimeTranslation
         int externalId,
         CancellationToken cancellationToken)
     {
-        var json = await _yummyAnimeClient.GetVideosJsonAsync(externalId, cancellationToken);
+        var result = await _yummyAnimeClient.GetVideosJsonAsync(externalId, cancellationToken);
 
-        var parsed = _animeTranslationParser.Parse(json);
+        if (result.IsSuccess == false || string.IsNullOrWhiteSpace(result.Content))
+        {
+            throw new ClientException($"Failed to fetch anime videos. Status: {result.StatusCode}");
+        }
+
+        var parsed = _animeTranslationParser.Parse(result.Content);
 
         var mapped = parsed
             .Select(_animeTranslationDescriptorMapper.Map)

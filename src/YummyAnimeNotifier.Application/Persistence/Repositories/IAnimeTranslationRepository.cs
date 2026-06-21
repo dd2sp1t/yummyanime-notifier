@@ -7,7 +7,20 @@ public interface IAnimeTranslationRepository
 {
     Task<AnimeTranslation[]> FindAsync(Guid animeId, CancellationToken cancellationToken = default);
 
+    Task<AnimeTranslation> FindAsync(
+        Guid animeId,
+        TranslationType translationType,
+        string translationSourceName,
+        CancellationToken cancellationToken = default);
+
+    Task<AnimeTranslation> GetAsync(
+        Guid animeId,
+        Guid translationSourceId,
+        CancellationToken cancellationToken = default);
+
     void Add(AnimeTranslation translation);
+
+    Task UpdateAsync(AnimeTranslation translation, CancellationToken cancellationToken = default);
 
     Task UpdateRangeAsync(AnimeTranslation[] translations, CancellationToken cancellationToken = default);
 

@@ -4,7 +4,11 @@ namespace YummyAnimeNotifier.Application.Persistence.Repositories;
 
 public interface ISubscriptionRepository
 {
-    Task<Subscription> FindAsync(Guid userId, Guid animeId, CancellationToken cancellationToken = default);
+    Task<Subscription> FindAsync(
+        Guid userId,
+        Guid animeId,
+        Guid translationSourceId,
+        CancellationToken cancellationToken = default);
 
     Task<Subscription[]> FindByUserIdAsync(
         Guid userId,
@@ -26,5 +30,5 @@ public interface ISubscriptionRepository
 
     Task UpdateRangeAsync(Subscription[] subscriptions, CancellationToken cancellationToken = default);
 
-    Task CancelByAnimeIdAsync(Guid animeId, CancellationToken cancellationToken = default);
+    Task CancelAsync(Guid animeId, Guid translationSourceId, CancellationToken cancellationToken = default);
 }

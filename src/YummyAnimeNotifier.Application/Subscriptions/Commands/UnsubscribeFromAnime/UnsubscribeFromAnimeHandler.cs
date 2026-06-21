@@ -22,6 +22,8 @@ public class UnsubscribeFromAnimeHandler : IRequestHandler<UnsubscribeFromAnimeC
 
     public async Task<Unit> Handle(UnsubscribeFromAnimeCommand request, CancellationToken cancellationToken)
     {
+        throw new NotImplementedException();
+
         var user = await _userRepository.FindByTelegramUserIdAsync(request.TelegramUserId, cancellationToken);
         if (user is null)
         {
@@ -31,10 +33,15 @@ public class UnsubscribeFromAnimeHandler : IRequestHandler<UnsubscribeFromAnimeC
         var anime = await _animeRepository.FindByNameAsync(request.RuName, cancellationToken);
         if (anime == null)
         {
-            throw new AnimeNotFoundException(anime.Name);
+            throw AnimeNotFoundException.ByName(name: anime.Name);
         }
 
-        var subscription = await _subscriptionRepository.FindAsync(user.Id, anime.Id, cancellationToken);
+        var subscription = await _subscriptionRepository.FindAsync(
+            user.Id,
+            anime.Id,
+            // TODO: fix
+            translationSourceId: default,
+            cancellationToken);
         if (subscription is null)
         {
             throw new SubscriptionNotFoundException(user.Id, anime.Id);

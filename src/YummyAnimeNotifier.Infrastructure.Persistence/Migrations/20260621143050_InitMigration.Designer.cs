@@ -11,7 +11,7 @@ using YummyAnimeNotifier.Infrastructure.Persistence;
 namespace YummyAnimeNotifier.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(YummyAnimeDbContext))]
-    [Migration("20260619210426_InitMigration")]
+    [Migration("20260621143050_InitMigration")]
     partial class InitMigration
     {
         /// <inheritdoc />
@@ -223,7 +223,7 @@ namespace YummyAnimeNotifier.Infrastructure.Persistence.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
-                    b.Property<Guid?>("TranslationSourceId")
+                    b.Property<Guid>("TranslationSourceId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
@@ -355,7 +355,9 @@ namespace YummyAnimeNotifier.Infrastructure.Persistence.Migrations
 
                     b.HasOne("YummyAnimeNotifier.Infrastructure.Persistence.Entities.DbTranslationSource", "TranslationSource")
                         .WithMany("Subscriptions")
-                        .HasForeignKey("TranslationSourceId");
+                        .HasForeignKey("TranslationSourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("YummyAnimeNotifier.Infrastructure.Persistence.Entities.DbUser", "User")
                         .WithMany("Subscriptions")

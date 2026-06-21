@@ -10,7 +10,7 @@ public class Subscription
     public DateTimeOffset? UpdatedAt { get; private set; }
     public Guid UserId { get; private set; }
     public Guid AnimeId { get; private set; }
-    public Guid? TranslationSourceId { get; private set; }
+    public Guid TranslationSourceId { get; private set; }
     public bool IsDeleted { get; private set; }
 
     public void Cancel()
@@ -24,39 +24,20 @@ public class Subscription
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
-    public void Restore(AnimeStatus animeStatus)
+    public void Restore(AnimeTranslationStatus animeTranslationStatus)
     {
-        // TODO: rework
-        if (animeStatus == AnimeStatus.Finished)
+        if (animeTranslationStatus == AnimeTranslationStatus.Finished)
         {
-            throw new AnimeAlreadyFinishedException(AnimeId);
+            throw new AnimeTranslationAlreadyFinishedException(AnimeId, TranslationSourceId);
         }
 
         if (IsDeleted == false)
         {
-            throw new AlreadySubscribedException(UserId, AnimeId);
+            throw new AlreadySubscribedException(UserId, AnimeId, TranslationSourceId);
         }
 
         IsDeleted = false;
         UpdatedAt = DateTimeOffset.UtcNow;
-    }
-
-    public static Subscription Create(Guid userId, Guid animeId, AnimeStatus animeStatus)
-    {
-        if (animeStatus == AnimeStatus.Finished)
-        {
-            throw new AnimeAlreadyFinishedException(animeId);
-        }
-
-        return new Subscription
-        {
-            Id = Guid.NewGuid(),
-            CreatedAt = DateTimeOffset.UtcNow,
-            UserId = userId,
-            AnimeId = animeId,
-            TranslationSourceId = null,
-            IsDeleted = false
-        };
     }
 
     public static Subscription Create(
@@ -87,7 +68,7 @@ public class Subscription
         DateTimeOffset? updatedAt,
         Guid userId,
         Guid animeId,
-        Guid? translationSourceId,
+        Guid translationSourceId,
         bool isDeleted)
     {
         return new Subscription

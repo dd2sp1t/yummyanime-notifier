@@ -1,4 +1,3 @@
-using YummyAnimeNotifier.Application.Persistence;
 using YummyAnimeNotifier.Application.Persistence.Repositories;
 using MediatR;
 
@@ -6,44 +5,19 @@ namespace YummyAnimeNotifier.Application.Subscriptions.Commands.CancelSubscripti
 
 public class CancelSubscriptionsHandler : IRequestHandler<CancelSubscriptionsCommand, Unit>
 {
-    // TODO: move to config
-    private const int BatchSize = 500;
     private readonly ISubscriptionRepository _subscriptionRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public CancelSubscriptionsHandler(ISubscriptionRepository subscriptionRepository, IUnitOfWork unitOfWork)
+    public CancelSubscriptionsHandler(ISubscriptionRepository subscriptionRepository)
     {
         _subscriptionRepository = subscriptionRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Unit> Handle(CancelSubscriptionsCommand request, CancellationToken cancellationToken)
     {
-        // DDD
-        // while (true)
-        // {
-        //     var batch = await _subscriptionRepository.GetByAnimeId(
-        //         request.AnimeId,
-        //         take: BatchSize,
-        //         skip: 0,
-        //         cancellationToken);
-
-        //     if (batch.Length == 0)
-        //     {
-        //         break;
-        //     }
-
-        //     foreach (var sub in batch)
-        //     {
-        //         sub.Cancel();
-        //     }
-
-        //     await _subscriptionRepository.UpdateRangeAsync(batch, cancellationToken);
-        //     await _unitOfWork.SaveChangesAsync(cancellationToken);
-        // }
-
-        // optimized
-        await _subscriptionRepository.CancelByAnimeIdAsync(request.AnimeId, cancellationToken);
+        await _subscriptionRepository.CancelAsync(
+            request.AnimeId,
+            request.TranslationSourceId,
+            cancellationToken);
 
         return Unit.Value;
     }

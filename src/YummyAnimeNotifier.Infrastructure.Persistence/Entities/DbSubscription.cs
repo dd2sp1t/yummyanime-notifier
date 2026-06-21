@@ -5,7 +5,7 @@ public class DbSubscription
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public Guid AnimeId { get; set; }
-    public Guid? TranslationSourceId { get; set; }
+    public Guid TranslationSourceId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
     public bool IsDeleted { get; set; }

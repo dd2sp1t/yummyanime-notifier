@@ -34,7 +34,12 @@ internal sealed class SubscribeCommandHandler : ITelegramUpdateHandler
 
         var link = parts[1];
 
-        var command = new SubscribeToAnimeCommand(TelegramUserId: message.From.Id, link);
+        var command = new SubscribeToAnimeCommand(
+            TelegramUserId: message.From.Id,
+            link,
+            // TODO: replace default values
+            TranslationType: default,
+            TranslationSourceName: default);
         await _mediator.Send(command, cancellationToken);
     }
 }

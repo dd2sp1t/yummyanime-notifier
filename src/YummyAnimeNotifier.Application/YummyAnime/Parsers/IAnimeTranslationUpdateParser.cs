@@ -2,7 +2,7 @@ using YummyAnimeNotifier.Application.YummyAnime.Parsers.Models;
 
 namespace YummyAnimeNotifier.Application.YummyAnime.Parsers;
 
-public interface IAnimeUpdateParser
+public interface IAnimeTranslationUpdateParser
 {
-    ParsedAnimeUpdate[] Parse(string html);
+    ParsedAnimeTranslationUpdate[] Parse(string html);
 }

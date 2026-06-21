@@ -22,7 +22,7 @@ public class DbSubscriptionConfig : IEntityTypeConfiguration<DbSubscription>
             .IsRequired();
 
         builder.Property(s => s.TranslationSourceId)
-            .IsRequired(false);
+            .IsRequired();
 
         builder.Property(s => s.CreatedAt)
             .IsRequired();

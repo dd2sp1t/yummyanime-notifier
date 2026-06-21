@@ -4,6 +4,7 @@ using YummyAnimeNotifier.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using YummyAnimeNotifier.Infrastructure.Persistence.ConflictDetectors;
 
 namespace YummyAnimeNotifier.Infrastructure.Persistence
 {
@@ -23,9 +24,9 @@ namespace YummyAnimeNotifier.Infrastructure.Persistence
                         options.UseSqlite(configuration.GetConnectionString("Sqlite"));
                         break;
 
-                    // case "Postgres":
-                    //     options.UseNpgsql(configuration.GetConnectionString("Postgres"));
-                    //     break;
+                    case "Postgres":
+                        options.UseNpgsql(configuration.GetConnectionString("Postgres"));
+                        break;
 
                     default:
                         throw new InvalidOperationException(
@@ -33,10 +34,26 @@ namespace YummyAnimeNotifier.Infrastructure.Persistence
                 }
             });
 
+            switch (provider)
+            {
+                case "Sqlite":
+                    services.AddScoped<IConflictDetector, SqliteConflictDetector>();
+                    break;
+
+                case "Postgres":
+                    services.AddScoped<IConflictDetector, PgSqlConflictDetector>();
+                    break;
+
+                default:
+                    throw new InvalidOperationException(
+                        $"Unknown database provider: {provider}");
+            }
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAnimeRepository, AnimeRepository>();
             services.AddScoped<IAnimeTranslationRepository, AnimeTranslationRepository>();
             services.AddScoped<ITranslationSourceRepository, TranslationSourceRepository>();
+            services.AddScoped<IReleaseRepository, ReleaseRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
             services.AddScoped<INotificationRepository, NotificationRepository>();

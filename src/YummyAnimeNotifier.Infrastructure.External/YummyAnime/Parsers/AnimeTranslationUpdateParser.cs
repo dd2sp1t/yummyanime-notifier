@@ -5,9 +5,9 @@ using YummyAnimeNotifier.Application.YummyAnime.Parsers.Models;
 
 namespace YummyAnimeNotifier.Infrastructure.External.YummyAnime.Parsers;
 
-internal class AnimeUpdateParser : IAnimeUpdateParser
+internal class AnimeTranslationUpdateParser : IAnimeTranslationUpdateParser
 {
-    public ParsedAnimeUpdate[] Parse(string html)
+    public ParsedAnimeTranslationUpdate[] Parse(string html)
     {
         var doc = new HtmlDocument();
         doc.LoadHtml(html);
@@ -24,10 +24,10 @@ internal class AnimeUpdateParser : IAnimeUpdateParser
             .Select(node =>
             {
                 var animeName = GetAnimeName(node);
-                var episodeNumber = GetEpisodeNumber(node);
                 var translationRaw = GetTranslationRaw(node);
+                var episodeNumber = GetEpisodeNumber(node);
 
-                return new ParsedAnimeUpdate(animeName, episodeNumber, translationRaw);
+                return new ParsedAnimeTranslationUpdate(animeName, translationRaw, episodeNumber);
             })
             .ToArray();
 
@@ -47,26 +47,6 @@ internal class AnimeUpdateParser : IAnimeUpdateParser
         }
 
         return text;
-    }
-
-    private static int GetEpisodeNumber(HtmlNode root)
-    {
-        var boldNode = root.SelectSingleNode(".//span[contains(@class,'update-info')]/b");
-
-        var raw = boldNode?.InnerText?.Trim();
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            throw new ParseException("Failed to parse EpisodeNumber (empty <b> node)");
-        }
-
-        // "123-я" → 123
-        var digits = new string([.. raw.TakeWhile(char.IsDigit)]);
-        if (int.TryParse(digits, out var value) == false)
-        {
-            throw new ParseException($"Failed to parse EpisodeNumber from '{raw}'");
-        }
-
-        return value;
     }
 
     private static string GetTranslationRaw(HtmlNode root)
@@ -92,5 +72,25 @@ internal class AnimeUpdateParser : IAnimeUpdateParser
         }
 
         return translationRaw;
+    }
+
+    private static int GetEpisodeNumber(HtmlNode root)
+    {
+        var boldNode = root.SelectSingleNode(".//span[contains(@class,'update-info')]/b");
+
+        var raw = boldNode?.InnerText?.Trim();
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            throw new ParseException("Failed to parse EpisodeNumber (empty <b> node)");
+        }
+
+        // "123-я" → 123
+        var digits = new string([.. raw.TakeWhile(char.IsDigit)]);
+        if (int.TryParse(digits, out var value) == false)
+        {
+            throw new ParseException($"Failed to parse EpisodeNumber from '{raw}'");
+        }
+
+        return value;
     }
 }

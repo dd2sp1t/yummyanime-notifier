@@ -32,6 +32,56 @@ internal class AnimeTranslationRepository : IAnimeTranslationRepository
         return translations;
     }
 
+    public async Task<AnimeTranslation> FindAsync(
+        Guid animeId,
+        TranslationType translationType,
+        string translationSourceName,
+        CancellationToken cancellationToken)
+    {
+        var dbTranslation = await _dbContext.AnimeTranslations
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                t => t.AnimeId == animeId
+                && t.TranslationSource.Type == translationType
+                && t.TranslationSource.Name.ToLower() == translationSourceName.ToLower(),
+                cancellationToken);
+
+        if (dbTranslation is null)
+        {
+            return null;
+        }
+
+        return AnimeTranslation.FromExisting(
+            dbTranslation.AnimeId,
+            dbTranslation.TranslationSourceId,
+            dbTranslation.CreatedAt,
+            dbTranslation.UpdatedAt,
+            dbTranslation.Status,
+            dbTranslation.TotalEpisodes,
+            dbTranslation.ReleasedEpisodes);
+    }
+
+    public async Task<AnimeTranslation> GetAsync(
+        Guid animeId,
+        Guid translationSourceId,
+        CancellationToken cancellationToken)
+    {
+        var dbTranslation = await _dbContext.AnimeTranslations
+            .AsNoTracking()
+            .SingleAsync(
+                t => t.AnimeId == animeId && t.TranslationSourceId == translationSourceId,
+                cancellationToken);
+
+        return AnimeTranslation.FromExisting(
+            dbTranslation.AnimeId,
+            dbTranslation.TranslationSourceId,
+            dbTranslation.CreatedAt,
+            dbTranslation.UpdatedAt,
+            dbTranslation.Status,
+            dbTranslation.TotalEpisodes,
+            dbTranslation.ReleasedEpisodes);
+    }
+
     public void Add(AnimeTranslation translation)
     {
         var dbTranslation = new DbAnimeTranslation
@@ -73,5 +123,17 @@ internal class AnimeTranslationRepository : IAnimeTranslationRepository
             .ToArrayAsync(cancellationToken);
 
         return translations;
+    }
+
+    public async Task UpdateAsync(AnimeTranslation translation, CancellationToken cancellationToken)
+    {
+        var dbTranslation = await _dbContext.AnimeTranslations
+            .SingleAsync(
+                t => t.AnimeId == translation.AnimeId && t.TranslationSourceId == translation.TranslationSourceId,
+                cancellationToken);
+
+        dbTranslation.ReleasedEpisodes = translation.ReleasedEpisodes;
+        dbTranslation.Status = translation.Status;
+        dbTranslation.UpdatedAt = translation.UpdatedAt;
     }
 }

@@ -4,16 +4,16 @@ using YummyAnimeNotifier.Application.YummyAnime.Parsers.Models;
 
 namespace YummyAnimeNotifier.Application.YummyAnime.Mappers;
 
-public class AnimeUpdateDescriptorMapper
+public class AnimeTranslationUpdateDescriptorMapper
 {
-    public AnimeUpdateDescriptor Map(ParsedAnimeUpdate parsed)
+    public AnimeTranslationUpdateDescriptor Map(ParsedAnimeTranslationUpdate parsed)
     {
         var (translationType, translationSourceName) = TranslationDataExtractor.Extract(parsed.TranslationRaw);
 
-        return new AnimeUpdateDescriptor(
+        return new AnimeTranslationUpdateDescriptor(
             parsed.AnimeName,
-            parsed.EpisodeNumber,
             translationType,
-            translationSourceName);
+            translationSourceName,
+            parsed.EpisodeNumber);
     }
 }

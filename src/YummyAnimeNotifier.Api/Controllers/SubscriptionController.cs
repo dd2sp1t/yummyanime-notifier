@@ -23,13 +23,19 @@ public class SubscriptionController : ControllerBase
         [FromBody] SubscribeToAnimeRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new SubscribeToAnimeCommand(request.TelegramUserId, request.SourceLink);
+        var command = new SubscribeToAnimeCommand(
+            request.TelegramUserId,
+            request.SourceLink,
+            request.TranslationType,
+            request.TranslationSourceName);
 
         await _mediator.Send(command, cancellationToken);
 
         return Ok();
     }
 
+    // TODO: rework
+    [Obsolete]
     [HttpPost("/unsubscribe")]
     public async Task<IActionResult> UnsubscribeFromAnimeAsync(
         [FromBody] UnsubscribeFromAnimeRequest request,
@@ -42,6 +48,8 @@ public class SubscriptionController : ControllerBase
         return Ok();
     }
 
+    // TODO: rework
+    [Obsolete]
     [HttpGet]
     public async Task<IActionResult> GetUserSubscriptionsAsync(
         [FromQuery] long telegramUserId,

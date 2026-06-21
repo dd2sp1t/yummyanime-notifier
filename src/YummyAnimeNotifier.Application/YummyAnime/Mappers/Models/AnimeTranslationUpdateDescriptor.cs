@@ -2,8 +2,8 @@ using YummyAnimeNotifier.Domain.Enums;
 
 namespace YummyAnimeNotifier.Application.YummyAnime.Mappers.Models;
 
-public record AnimeUpdateDescriptor(
+public record AnimeTranslationUpdateDescriptor(
     string AnimeName,
-    int EpisodeNumber,
     TranslationType TranslationType,
-    string TranslationSourceName);
+    string TranslationSourceName,
+    int EpisodeNumber);

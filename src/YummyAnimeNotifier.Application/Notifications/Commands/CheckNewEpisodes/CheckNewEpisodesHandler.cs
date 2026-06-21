@@ -11,6 +11,7 @@ using YummyAnimeNotifier.Application.YummyAnime;
 using YummyAnimeNotifier.Application.YummyAnime.Mappers;
 using YummyAnimeNotifier.Application.YummyAnime.Mappers.Models;
 using YummyAnimeNotifier.Domain.Enums;
+using YummyAnimeNotifier.Application.YummyAnime.Exceptions;
 
 namespace YummyAnimeNotifier.Application.Notifications.Commands.CheckNewEpisodes;
 
@@ -18,41 +19,46 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
 {
     private readonly YummyAnimeSiteData _yummyAnimeSiteData;
     private readonly IYummyAnimeClient _yummyAnimeClient;
-    private readonly IAnimeUpdateParser _animeUpdateParser;
-    private readonly AnimeUpdateDescriptorMapper _animeUpdateDescriptorMapper;
+    private readonly IAnimeTranslationUpdateParser _animeTranslationUpdateParser;
+    private readonly AnimeTranslationUpdateDescriptorMapper _animeTranslationUpdateDescriptorMapper;
     private readonly IAnimeRepository _animeRepository;
     private readonly IAnimeTranslationRepository _animeTranslationRepository;
     private readonly ITranslationSourceRepository _translationSourceRepository;
+    private readonly IReleaseRepository _releaseRepository;
     private readonly IOutboxMessageRepository _outboxMessageRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CheckNewEpisodesHandler(
         IOptions<YummyAnimeSiteData> options,
         IYummyAnimeClient yummyAnimeClient,
-        IAnimeUpdateParser animeUpdateParser,
-        AnimeUpdateDescriptorMapper animeUpdateDescriptorMapper,
+        IAnimeTranslationUpdateParser animeTranslationUpdateParser,
+        AnimeTranslationUpdateDescriptorMapper animeTranslationUpdateDescriptorMapper,
         IAnimeRepository animeRepository,
         IAnimeTranslationRepository animeTranslationRepository,
         ITranslationSourceRepository translationSourceRepository,
+        IReleaseRepository releaseRepository,
         IOutboxMessageRepository outboxMessageRepository,
         IUnitOfWork unitOfWork)
     {
         _yummyAnimeSiteData = options.Value;
         _yummyAnimeClient = yummyAnimeClient;
-        _animeUpdateParser = animeUpdateParser;
-        _animeUpdateDescriptorMapper = animeUpdateDescriptorMapper;
+        _animeTranslationUpdateParser = animeTranslationUpdateParser;
+        _animeTranslationUpdateDescriptorMapper = animeTranslationUpdateDescriptorMapper;
         _animeRepository = animeRepository;
         _animeTranslationRepository = animeTranslationRepository;
+        _translationSourceRepository = translationSourceRepository;
+        _releaseRepository = releaseRepository;
         _outboxMessageRepository = outboxMessageRepository;
         _unitOfWork = unitOfWork;
-        _translationSourceRepository = translationSourceRepository;
     }
 
     public async Task<Unit> Handle(CheckNewEpisodesCommand request, CancellationToken cancellationToken)
     {
-        var parsed = await ParseAnimeUpdatesAsync(cancellationToken);
+        var parsed = await ParseAnimeTranslationUpdatesAsync(cancellationToken);
 
-        var updateDescriptors = parsed.Select(_animeUpdateDescriptorMapper.Map).ToArray();
+        var updateDescriptors = parsed
+            .Select(_animeTranslationUpdateDescriptorMapper.Map)
+            .ToArray();
 
         var animeTranslations = await FindAnimeTranslationsAsync(updateDescriptors, cancellationToken);
         if (animeTranslations.Length == 0)
@@ -72,56 +78,66 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
             .ToArray();
         var translationSources = await _translationSourceRepository.GetAsync(translationSourceIds, cancellationToken);
 
-        var outboxMessages = GetOutboxMessages(animeTranslations, translationSources, animes, updateDescriptors);
-        _outboxMessageRepository.AddRange(outboxMessages);
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var releases = GetReleases(animeTranslations, translationSources, animes, updateDescriptors);
+        await SaveReleasesAsync(releases, cancellationToken);
 
         return Unit.Value;
     }
 
-    private async Task<ParsedAnimeUpdate[]> ParseAnimeUpdatesAsync(CancellationToken cancellationToken)
+    private async Task<ParsedAnimeTranslationUpdate[]> ParseAnimeTranslationUpdatesAsync(
+        CancellationToken cancellationToken)
     {
         var uriString = $"{_yummyAnimeSiteData.Domain}{_yummyAnimeSiteData.AnimeUpdatesRelativeLink}";
 
-        var html = await _yummyAnimeClient.GetHtmlStringAsync(new Uri(uriString), cancellationToken);
+        var result = await _yummyAnimeClient.GetHtmlStringAsync(new Uri(uriString), cancellationToken);
 
-        var parsed = _animeUpdateParser.Parse(html);
+        if (result.IsSuccess == false || string.IsNullOrWhiteSpace(result.Content))
+        {
+            throw new ClientException($"Failed to fetch anime updates page. Status: {result.StatusCode}");
+        }
+
+        var parsed = _animeTranslationUpdateParser.Parse(result.Content);
 
         return parsed;
     }
 
     private async Task<AnimeTranslation[]> FindAnimeTranslationsAsync(
-        AnimeUpdateDescriptor[] updateDescriptors,
+        AnimeTranslationUpdateDescriptor[] updateDescriptors,
         CancellationToken cancellationToken)
     {
         var grouped = updateDescriptors.GroupBy(d => d.AnimeName);
 
         var animeNames = grouped.Select(g => g.Key).ToArray();
-        var existingAnimeNames = await _animeRepository.FilterExistingNamesAsync(animeNames, cancellationToken);
-        if (existingAnimeNames.Length == 0)
+        var subscribedAnimeNames = await _animeRepository.FilterSubscribedNamesAsync(animeNames, cancellationToken);
+        if (subscribedAnimeNames.Length == 0)
         {
             return [];
         }
 
-        var existingAnimeNameSet = existingAnimeNames.ToHashSet();
-        var tasks = grouped
-            .Where(g => existingAnimeNameSet.Contains(g.Key))
-            // TODO:
-            .Select(g => FindAnimeTranslationsAsync(
-                animeName: g.Key,
-                updateDescriptors: [.. g],
-                cancellationToken))
-            .ToArray();
+        var subscribedAnimeNameSet = subscribedAnimeNames.ToHashSet();
 
-        var results = await Task.WhenAll(tasks);
+        var result = new List<AnimeTranslation>();
+        foreach (var group in grouped)
+        {
+            if (subscribedAnimeNameSet.Contains(group.Key) == false)
+            {
+                continue;
+            }
 
-        return [.. results.SelectMany(r => r)];
+            var translations = await FindAnimeTranslationsAsync(
+                animeName: group.Key,
+                updateDescriptors: [.. group],
+                cancellationToken);
+
+            result.AddRange(translations);
+        }
+
+        return [.. result];
     }
 
     private async Task<AnimeTranslation[]> FindAnimeTranslationsAsync(
         string animeName,
-        AnimeUpdateDescriptor[] updateDescriptors,
+        AnimeTranslationUpdateDescriptor[] updateDescriptors,
         CancellationToken cancellationToken)
     {
         var grouped = updateDescriptors
@@ -146,18 +162,18 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
         return [.. result];
     }
 
-    private OutboxMessage[] GetOutboxMessages(
+    private Release[] GetReleases(
         AnimeTranslation[] animeTranslations,
         TranslationSource[] translationSources,
         Domain.Entities.Anime[] animes,
-        AnimeUpdateDescriptor[] updateDescriptors)
+        AnimeTranslationUpdateDescriptor[] updateDescriptors)
     {
         var translationSourceMap = translationSources.ToDictionary(t => t.Id);
         var animeMap = animes.ToDictionary(a => a.Id);
 
-        var updateDescriptorMap = updateDescriptors
+        var episodeNumbersMap = updateDescriptors
             .GroupBy(
-                d => new AnimeUpdateDescriptorKey(
+                d => new UpdateDescriptorKey(
                     d.AnimeName,
                     d.TranslationType,
                     d.TranslationSourceName))
@@ -169,7 +185,7 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
                     .OrderBy(n => n)
                     .ToArray());
 
-        var result = new List<OutboxMessage>();
+        var result = new List<Release>();
 
         foreach (var translation in animeTranslations)
         {
@@ -178,37 +194,43 @@ public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, 
                 continue;
             }
 
-            if (translationSourceMap.TryGetValue(translation.TranslationSourceId, out var source) == false)
+            if (translationSourceMap.TryGetValue(translation.TranslationSourceId, out var translationSource) == false)
             {
                 continue;
             }
 
-            var key = new AnimeUpdateDescriptorKey(anime.Name, source.Type, source.Name);
-            if (updateDescriptorMap.TryGetValue(key, out var episodeNumbers) == false)
+            var key = new UpdateDescriptorKey(anime.Name, translationSource.Type, translationSource.Name);
+            if (episodeNumbersMap.TryGetValue(key, out var episodeNumbers) == false)
             {
                 continue;
             }
 
-            var outboxMessages = episodeNumbers
+            var releases = episodeNumbers
                 .Where(n => n > translation.ReleasedEpisodes)
-                .Select(n =>
-                {
-                    var @event = new NewEpisodeDetectedEvent(
-                        translation.AnimeId,
-                        translation.TranslationSourceId,
-                        EpisodeNumber: n);
-
-                    return OutboxMessage.Create(@event);
-                })
+                .Select(n => Release.Create(anime.Id, translationSource.Id, episodeNumber: n))
                 .ToArray();
 
-            result.AddRange(outboxMessages);
+            result.AddRange(releases);
         }
 
         return [.. result];
     }
 
-    private record AnimeUpdateDescriptorKey(
+    private async Task SaveReleasesAsync(Release[] releases, CancellationToken cancellationToken)
+    {
+        foreach (var release in releases)
+        {
+            _releaseRepository.Add(release);
+
+            var @event = new ReleaseCreatedEvent(release.Id);
+            var outboxMessage = OutboxMessage.Create(@event);
+            _outboxMessageRepository.Add(outboxMessage);
+
+            await _unitOfWork.SaveChangesIgnoringConflictsAsync(cancellationToken);
+        }
+    }
+
+    private record UpdateDescriptorKey(
         string AnimeName,
         TranslationType TranslationType,
         string TranslationSourceName);

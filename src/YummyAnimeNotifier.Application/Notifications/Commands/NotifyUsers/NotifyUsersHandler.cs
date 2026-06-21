@@ -39,6 +39,7 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
 
     public async Task<Unit> Handle(NotifyUsersCommand request, CancellationToken cancellationToken)
     {
+        // TODO: get release
         // var anime = await _animeRepository.GetAsync(request.AnimeId, cancellationToken);
 
         // var subscriptions = await _subscriptionRepository.FindByAnimeIdAsync(request.AnimeId, cancellationToken);
@@ -115,7 +116,6 @@ public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
 
         if (notification is null)
         {
-            // TODO:
             notification = Notification.Create(
                 userId,
                 releaseId,

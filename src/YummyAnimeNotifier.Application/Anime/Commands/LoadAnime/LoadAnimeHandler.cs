@@ -5,6 +5,8 @@ using YummyAnimeNotifier.Application.YummyAnime.Client;
 using YummyAnimeNotifier.Application.YummyAnime.Parsers;
 using YummyAnimeNotifier.Application.YummyAnime.Mappers;
 using YummyAnimeNotifier.Application.Anime.Commands.LoadAnimeTranslations;
+using YummyAnimeNotifier.Application.Exceptions;
+using YummyAnimeNotifier.Application.YummyAnime.Exceptions;
 
 namespace YummyAnimeNotifier.Application.Anime.Commands.LoadAnime;
 
@@ -50,9 +52,19 @@ public class LoadAnimeHandler : IRequestHandler<LoadAnimeCommand, Domain.Entitie
         Uri sourceUri,
         CancellationToken cancellationToken)
     {
-        var html = await _yummyAnimeClient.GetHtmlStringAsync(sourceUri, cancellationToken);
+        var result = await _yummyAnimeClient.GetHtmlStringAsync(sourceUri, cancellationToken);
 
-        var parsed = _animePageParser.Parse(html);
+        if (result.StatusCode == 404)
+        {
+            throw AnimeNotFoundException.External404(sourceUri.PathAndQuery);
+        }
+
+        if (result.IsSuccess == false)
+        {
+            throw new ClientException($"Failed to fetch anime page. Status: {result.StatusCode}");
+        }
+
+        var parsed = _animePageParser.Parse(result.Content);
 
         var anime = _animeMapper.Map(parsed);
 

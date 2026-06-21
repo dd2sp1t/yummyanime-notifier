@@ -14,12 +14,18 @@ internal class SubscriptionRepository : ISubscriptionRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Subscription> FindAsync(Guid userId, Guid animeId, CancellationToken cancellationToken)
+    public async Task<Subscription> FindAsync(
+        Guid userId,
+        Guid animeId,
+        Guid translationSourceId,
+        CancellationToken cancellationToken)
     {
         var dbSub = await _dbContext.Subscriptions
             .AsNoTracking()
             .SingleOrDefaultAsync(
-                s => s.UserId == userId && s.AnimeId == animeId,
+                s => s.UserId == userId
+                    && s.AnimeId == animeId
+                    && s.TranslationSourceId == translationSourceId,
                 cancellationToken);
 
         if (dbSub is null)
@@ -149,10 +155,12 @@ internal class SubscriptionRepository : ISubscriptionRepository
         }
     }
 
-    public Task CancelByAnimeIdAsync(Guid animeId, CancellationToken cancellationToken)
+    public Task CancelAsync(Guid animeId, Guid translationSourceId, CancellationToken cancellationToken)
     {
         return _dbContext.Subscriptions
-            .Where(s => s.AnimeId == animeId && s.IsDeleted == false)
+            .Where(s => s.AnimeId == animeId
+                    && s.TranslationSourceId == translationSourceId
+                    && s.IsDeleted == false)
             .ExecuteUpdateAsync(
                 setters => setters
                     .SetProperty(s => s.IsDeleted, true)

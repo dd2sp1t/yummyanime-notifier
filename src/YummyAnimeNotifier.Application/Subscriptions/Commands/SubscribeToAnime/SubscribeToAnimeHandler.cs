@@ -4,6 +4,7 @@ using YummyAnimeNotifier.Domain.Entities;
 using MediatR;
 using YummyAnimeNotifier.Application.Anime.Commands.LoadAnime;
 using YummyAnimeNotifier.Application.Anime.Commands.LoadAnimeTranslations;
+using YummyAnimeNotifier.Application.Exceptions;
 
 namespace YummyAnimeNotifier.Application.Subscriptions.Commands.SubscribeToAnime;
 
@@ -13,6 +14,7 @@ public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, 
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
     private readonly IAnimeRepository _animeRepository;
+    private readonly IAnimeTranslationRepository _animeTranslationRepository;
     private readonly ISubscriptionRepository _subscriptionRepository;
 
 
@@ -21,31 +23,53 @@ public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, 
         IUnitOfWork unitOfWork,
         IUserRepository userRepository,
         IAnimeRepository animeRepository,
+        IAnimeTranslationRepository animeTranslationRepository,
         ISubscriptionRepository subscriptionRepository)
     {
         _mediator = mediator;
         _unitOfWork = unitOfWork;
         _userRepository = userRepository;
         _animeRepository = animeRepository;
+        _animeTranslationRepository = animeTranslationRepository;
         _subscriptionRepository = subscriptionRepository;
+
     }
 
     public async Task<Unit> Handle(SubscribeToAnimeCommand request, CancellationToken cancellationToken)
     {
         var anime = await GetAnimeAsync(request.SourceLink, cancellationToken);
 
+        var translation = await _animeTranslationRepository.FindAsync(
+            anime.Id,
+            request.TranslationType,
+            request.TranslationSourceName,
+            cancellationToken);
+
+        if (translation is null)
+        {
+            throw new AnimeTranslationNotFoundException(
+                anime.Id,
+                request.TranslationType,
+                request.TranslationSourceName);
+        }
+
+        // TODO: rework
         var user = await _userRepository.GetOrCreateByTelegramUserIdAsync(request.TelegramUserId, cancellationToken);
 
-        var existing = await _subscriptionRepository.FindAsync(user.Id, anime.Id, cancellationToken);
+        var existing = await _subscriptionRepository.FindAsync(
+            user.Id,
+            anime.Id,
+            translation.TranslationSourceId,
+            cancellationToken);
 
         if (existing is null)
         {
-            var @new = Subscription.Create(user.Id, anime.Id, anime.Status);
+            var @new = Subscription.Create(user.Id, anime.Id, translation.TranslationSourceId, translation.Status);
             _subscriptionRepository.Add(@new);
         }
         else
         {
-            existing.Restore(anime.Status);
+            existing.Restore(translation.Status);
             await _subscriptionRepository.UpdateAsync(existing, cancellationToken);
         }
 
@@ -68,6 +92,7 @@ public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, 
         }
         else
         {
+            // TODO: limit
             // reload anime translations
             await _mediator.Send(new LoadAnimeTranslationsCommand(anime.Id), cancellationToken);
         }

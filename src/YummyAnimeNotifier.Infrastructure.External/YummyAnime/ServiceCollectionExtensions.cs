@@ -97,7 +97,7 @@ internal static class ServiceCollectionExtensions
     private static IServiceCollection AddYummyAnimeParsers(this IServiceCollection services)
     {
         services.AddSingleton<IAnimeParser, AnimeParser>();
-        services.AddSingleton<IAnimeUpdateParser, AnimeUpdateParser>();
+        services.AddSingleton<IAnimeTranslationUpdateParser, AnimeTranslationUpdateParser>();
         services.AddSingleton<IAnimeTranslationParser, AnimeTranslationParser>();
 
         return services;
