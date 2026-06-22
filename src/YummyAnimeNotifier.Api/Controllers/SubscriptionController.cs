@@ -1,7 +1,5 @@
 using YummyAnimeNotifier.Api.Requests;
-using YummyAnimeNotifier.Application.Subscriptions.Commands.SubscribeToAnime;
-using YummyAnimeNotifier.Application.Subscriptions.Commands.UnsubscribeFromAnime;
-using YummyAnimeNotifier.Application.Subscriptions.Queries.GetUserSubscriptions;
+using YummyAnimeNotifier.Application.Consumer.Subscriptions.Commands.SubscribeToAnime;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,33 +30,5 @@ public class SubscriptionController : ControllerBase
         await _mediator.Send(command, cancellationToken);
 
         return Ok();
-    }
-
-    // TODO: rework
-    [Obsolete]
-    [HttpPost("/unsubscribe")]
-    public async Task<IActionResult> UnsubscribeFromAnimeAsync(
-        [FromBody] UnsubscribeFromAnimeRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = new UnsubscribeFromAnimeCommand(request.TelegramUserId, request.RuName);
-
-        await _mediator.Send(command, cancellationToken);
-
-        return Ok();
-    }
-
-    // TODO: rework
-    [Obsolete]
-    [HttpGet]
-    public async Task<IActionResult> GetUserSubscriptionsAsync(
-        [FromQuery] long telegramUserId,
-        CancellationToken cancellationToken)
-    {
-        var query = new GetUserSubscriptionsQuery(telegramUserId);
-
-        var subscriptions = await _mediator.Send(query, cancellationToken);
-
-        return Ok(subscriptions);
     }
 }

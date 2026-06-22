@@ -1,19 +1,20 @@
-using YummyAnimeNotifier.Application;
-using YummyAnimeNotifier.Infrastructure.External;
+using YummyAnimeNotifier.Application.Worker;
+using YummyAnimeNotifier.Infrastructure.External.MassTransit;
+using YummyAnimeNotifier.Infrastructure.External.Telegram;
+using YummyAnimeNotifier.Infrastructure.External.YummyAnime;
 using YummyAnimeNotifier.Infrastructure.Persistence;
-using YummyAnimeNotifier.Worker.BackgroundServices;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
-    .AddApplication(builder.Configuration)
+    .AddWorkerApplication(builder.Configuration)
     .AddPersistence(builder.Configuration)
-    .AddExternal(builder.Configuration);
+    .AddYummyAnime(builder.Configuration)
+    .AddMassTransit(builder.Configuration, registerConsumers: false);
+// TODO: move to separate bot project
+// .AddTelegramReceiving(builder.Configuration);
 
 builder.Logging.AddFilter("MassTransit", LogLevel.Debug);
-
-// builder.Services.AddHostedService<EpisodeTrackingBackgroundService>();
-builder.Services.AddHostedService<OutboxPublisherBackgroundService>();
 
 var host = builder.Build();
 host.Run();

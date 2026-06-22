@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using YummyAnimeNotifier.Application.Persistence;
 
 namespace YummyAnimeNotifier.Infrastructure.Persistence.ConflictDetectors;
 

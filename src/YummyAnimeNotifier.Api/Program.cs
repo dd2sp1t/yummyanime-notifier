@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
-using YummyAnimeNotifier.Application;
-using YummyAnimeNotifier.Infrastructure.External;
+using YummyAnimeNotifier.Application.Consumer;
+using YummyAnimeNotifier.Infrastructure.External.YummyAnime;
 using YummyAnimeNotifier.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,9 +16,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-    .AddApplication(builder.Configuration)
+    .AddConsumerApplication(builder.Configuration)
     .AddPersistence(builder.Configuration)
-    .AddExternal(builder.Configuration);
+    .AddYummyAnime(builder.Configuration);
 
 var app = builder.Build();
 

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace YummyAnimeNotifier.Infrastructure.External.MassTransit;
 
-public class MassTransitEventBus : IEventBus
+internal class MassTransitEventBus : IEventBus
 {
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<MassTransitEventBus> _logger;

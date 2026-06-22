@@ -11,9 +11,9 @@ using Polly.Timeout;
 
 namespace YummyAnimeNotifier.Infrastructure.External.YummyAnime;
 
-internal static class ServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddYummyAnimeTools(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddYummyAnime(this IServiceCollection services, IConfiguration configuration)
     {
         return services
             .AddYummyAnimeClient(configuration)

@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\YummyAnimeNotifier.Application\YummyAnimeNotifier.Application.csproj" />
+    <ProjectReference Include="..\YummyAnimeNotifier.Application.Consumer\YummyAnimeNotifier.Application.Consumer.csproj" />
     <ProjectReference Include="..\YummyAnimeNotifier.Infrastructure.Persistence\YummyAnimeNotifier.Infrastructure.Persistence.csproj" />
     <ProjectReference Include="..\YummyAnimeNotifier.Infrastructure.External\YummyAnimeNotifier.Infrastructure.External.csproj" />
   </ItemGroup>

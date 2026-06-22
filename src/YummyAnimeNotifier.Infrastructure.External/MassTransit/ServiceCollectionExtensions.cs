@@ -6,19 +6,28 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace YummyAnimeNotifier.Infrastructure.External.MassTransit;
 
-internal static class ServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddMassTransit(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMassTransit(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        bool registerConsumers)
     {
         services.AddMassTransit(x =>
         {
-            x.AddConsumersFromNamespaceContaining<ReleaseCreated_UpdateAnimeTranslationConsumer>();
+            if (registerConsumers)
+            {
+                x.AddConsumersFromNamespaceContaining<ReleaseCreated_UpdateAnimeTranslationConsumer>();
+            }
 
             x.UsingRabbitMq((context, configurator) =>
             {
                 configurator.Host(configuration.GetConnectionString("RabbitMQ"));
 
-                configurator.ConfigureEndpoints(context);
+                if (registerConsumers)
+                {
+                    configurator.ConfigureEndpoints(context);
+                }
             });
         });
         services.AddScoped<IEventBus, MassTransitEventBus>();

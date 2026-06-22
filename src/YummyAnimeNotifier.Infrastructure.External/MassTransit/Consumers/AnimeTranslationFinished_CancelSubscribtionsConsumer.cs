@@ -2,7 +2,7 @@ using YummyAnimeNotifier.Application.Events;
 using MediatR;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using YummyAnimeNotifier.Application.Subscriptions.Commands.CancelSubscriptions;
+using YummyAnimeNotifier.Application.Consumer.Subscriptions.Commands.CancelSubscriptions;
 
 namespace YummyAnimeNotifier.Infrastructure.External.MassTransit.Consumers;
 

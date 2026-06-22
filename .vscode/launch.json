@@ -24,6 +24,18 @@
         "DOTNET_ENVIRONMENT": "Development"
       },
       "stopAtEntry": false
+    },
+    {
+      "name": ".NET Consumer",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/YummyAnimeNotifier.Consumer/bin/Debug/net8.0/YummyAnimeNotifier.Consumer.dll",
+      "cwd": "${workspaceFolder}/src/YummyAnimeNotifier.Consumer",
+      "env": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "stopAtEntry": false
     }
   ]
 }

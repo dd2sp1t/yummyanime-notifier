@@ -2,7 +2,7 @@ using YummyAnimeNotifier.Application.Events;
 using MediatR;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using YummyAnimeNotifier.Application.Anime.Commands.UpdateAnimeTranslation;
+using YummyAnimeNotifier.Application.Consumer.Anime.Commands.UpdateAnimeTranslation;
 
 namespace YummyAnimeNotifier.Infrastructure.External.MassTransit.Consumers;
 

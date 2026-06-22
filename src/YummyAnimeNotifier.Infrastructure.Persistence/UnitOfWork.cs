@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using YummyAnimeNotifier.Application.Persistence;
+using YummyAnimeNotifier.Infrastructure.Persistence.ConflictDetectors;
 
 namespace YummyAnimeNotifier.Infrastructure.Persistence;
 

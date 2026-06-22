@@ -1,6 +1,6 @@
 using System.Text.Json;
-using YummyAnimeNotifier.Application.Notifications.Senders;
-using YummyAnimeNotifier.Application.Notifications.Senders.Models;
+using YummyAnimeNotifier.Application.Consumer.Notifications.Senders;
+using YummyAnimeNotifier.Application.Consumer.Notifications.Senders.Models;
 using YummyAnimeNotifier.Domain.Entities;
 
 namespace YummyAnimeNotifier.Infrastructure.External.Mock;

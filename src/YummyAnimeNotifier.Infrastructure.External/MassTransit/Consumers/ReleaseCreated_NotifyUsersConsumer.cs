@@ -1,4 +1,4 @@
-using YummyAnimeNotifier.Application.Notifications.Commands.NotifyUsers;
+using YummyAnimeNotifier.Application.Consumer.Notifications.Commands.NotifyUsers;
 using YummyAnimeNotifier.Application.Events;
 using MediatR;
 using MassTransit;
@@ -25,7 +25,7 @@ public class ReleaseCreated_NotifyUsersConsumer : IConsumer<ReleaseCreatedEvent>
 
         try
         {
-            await _mediator.Send(new NotifyUsersCommand(@event.ReleaseId));
+            // await _mediator.Send(new NotifyUsersCommand(@event.ReleaseId));
         }
         catch (Exception exception)
         {

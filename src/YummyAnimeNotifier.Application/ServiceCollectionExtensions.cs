@@ -1,6 +1,4 @@
 using YummyAnimeNotifier.Application.YummyAnime.Mappers;
-using YummyAnimeNotifier.Application.Notifications;
-using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,15 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<AnimeTranslationDescriptorMapper>();
         services.AddSingleton<AnimeTranslationUpdateDescriptorMapper>();
 
-        var assembly = typeof(ServiceCollectionExtensions).Assembly;
-
-        services.AddMediatR(config => { config.RegisterServicesFromAssemblies(assembly); });
-
-        services.AddValidatorsFromAssembly(assembly);
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
-        var notificationSettingsSection = configuration.GetSection(nameof(NotificationSettings));
-        services.Configure<NotificationSettings>(notificationSettingsSection);
 
         return services;
     }
