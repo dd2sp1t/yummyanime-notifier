@@ -12,11 +12,10 @@ using YummyAnimeNotifier.Application.YummyAnime.Mappers;
 using YummyAnimeNotifier.Application.YummyAnime.Mappers.Models;
 using YummyAnimeNotifier.Domain.Enums;
 using YummyAnimeNotifier.Application.YummyAnime.Exceptions;
-using YummyAnimeNotifier.Application.Markers;
 
 namespace YummyAnimeNotifier.Application.Worker.Commands.CheckNewEpisodes;
 
-public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, Unit>, IWorkerAssemblyMarker
+public class CheckNewEpisodesHandler : IRequestHandler<CheckNewEpisodesCommand, Unit>
 {
     private readonly YummyAnimeSiteData _yummyAnimeSiteData;
     private readonly IYummyAnimeClient _yummyAnimeClient;

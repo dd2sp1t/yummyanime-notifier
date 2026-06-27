@@ -3,13 +3,10 @@ using YummyAnimeNotifier.Application.Persistence;
 using YummyAnimeNotifier.Application.Persistence.Repositories;
 using YummyAnimeNotifier.Domain.Entities;
 using MediatR;
-using YummyAnimeNotifier.Application.Markers;
 
 namespace YummyAnimeNotifier.Application.Consumer.Anime.Commands.UpdateAnimeTranslation;
 
-public class UpdateAnimeTranslationHandler :
-    IRequestHandler<UpdateAnimeTranslationCommand, Unit>,
-    IConsumerAssemblyMarker
+public class UpdateAnimeTranslationHandler : IRequestHandler<UpdateAnimeTranslationCommand, Unit>
 {
     private readonly IReleaseRepository _releaseRepository;
     private readonly IAnimeTranslationRepository _animeTranslationRepository;
@@ -38,6 +35,7 @@ public class UpdateAnimeTranslationHandler :
             release.TranslationSourceId,
             cancellationToken);
 
+        // TODO: fix race
         var updated = animeTranslation.TryUpdateReleasedEpisodes(release.EpisodeNumber);
 
         if (updated == false)

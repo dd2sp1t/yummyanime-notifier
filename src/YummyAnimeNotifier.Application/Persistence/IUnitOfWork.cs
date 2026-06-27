@@ -4,4 +4,5 @@ public interface IUnitOfWork
 {
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
     Task SaveChangesIgnoringConflictsAsync(CancellationToken cancellationToken = default);
+    void ClearTracking();
 }

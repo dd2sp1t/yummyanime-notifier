@@ -1,12 +1,10 @@
 using YummyAnimeNotifier.Application.Persistence;
 using YummyAnimeNotifier.Application.Persistence.Repositories;
 using MediatR;
-using YummyAnimeNotifier.Application.Markers;
-using YummyAnimeNotifier.Application.Consumer.Anime.Commands.UpdateAnime;
 
-namespace YummyAnimeNotifier.Application.Anime.Commands.UpdateAnime;
+namespace YummyAnimeNotifier.Application.Consumer.Anime.Commands.UpdateAnime;
 
-public class UpdateAnimeHandler : IRequestHandler<UpdateAnimeCommand, Unit>, IConsumerAssemblyMarker
+public class UpdateAnimeHandler : IRequestHandler<UpdateAnimeCommand, Unit>
 {
     private readonly IReleaseRepository _releaseRepository;
     private readonly IAnimeRepository _animeRepository;
@@ -28,6 +26,7 @@ public class UpdateAnimeHandler : IRequestHandler<UpdateAnimeCommand, Unit>, ICo
 
         var anime = await _animeRepository.GetAsync(release.AnimeId, cancellationToken);
 
+        // TODO: fix race
         var updated = anime.TryUpdateReleasedEpisodes(release.EpisodeNumber);
 
         if (updated == false)

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using YummyAnimeNotifier.Infrastructure.Persistence.ConflictDetectors;
+using MediatR;
+using YummyAnimeNotifier.Infrastructure.Persistence.PipelineBehaviors;
 
 namespace YummyAnimeNotifier.Infrastructure.Persistence
 {
@@ -58,6 +60,8 @@ namespace YummyAnimeNotifier.Infrastructure.Persistence
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<IOutboxMessageRepository, OutboxMessageRepository>();
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ConcurrencyRetryBehavior<,>));
 
             return services;
         }

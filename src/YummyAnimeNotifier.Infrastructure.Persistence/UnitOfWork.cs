@@ -25,7 +25,9 @@ internal class UnitOfWork : IUnitOfWork
         }
         catch (DbUpdateException exception) when (_conflictDetector.IsUniqueViolation(exception))
         {
-            _dbContext.ChangeTracker.Clear();
+            ClearTracking();
         }
     }
+
+    public void ClearTracking() => _dbContext.ChangeTracker.Clear();
 }

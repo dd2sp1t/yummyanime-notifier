@@ -5,11 +5,10 @@ using MediatR;
 using YummyAnimeNotifier.Application.Consumer.Anime.Commands.LoadAnime;
 using YummyAnimeNotifier.Application.Consumer.Anime.Commands.LoadAnimeTranslations;
 using YummyAnimeNotifier.Application.Exceptions;
-using YummyAnimeNotifier.Application.Markers;
 
 namespace YummyAnimeNotifier.Application.Consumer.Subscriptions.Commands.SubscribeToAnime;
 
-public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, Unit>, IConsumerAssemblyMarker
+public class SubscribeToAnimeHandler : IRequestHandler<SubscribeToAnimeCommand, Unit>
 {
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;

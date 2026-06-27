@@ -8,6 +8,7 @@ namespace YummyAnimeNotifier.Domain.Entities
     {
         public Guid Id { get; private set; }
         public DateTimeOffset CreatedAt { get; private set; }
+        public DateTimeOffset? UpdateddAt { get; private set; }
         public string EventType { get; private set; }
         public string Payload { get; private set; }
         public OutboxMessageStatus Status { get; private set; }
@@ -38,12 +39,14 @@ namespace YummyAnimeNotifier.Domain.Entities
         public void MarkAsPublished()
         {
             Status = OutboxMessageStatus.Published;
+            UpdateddAt = DateTimeOffset.UtcNow;
         }
 
         public void MarkAsFailed(string error)
         {
             Status = OutboxMessageStatus.Failed;
             Error = error;
+            UpdateddAt = DateTimeOffset.UtcNow;
         }
 
         public static OutboxMessage Create<TEvent>(TEvent @event) where TEvent : Event
@@ -61,6 +64,7 @@ namespace YummyAnimeNotifier.Domain.Entities
         public static OutboxMessage FromExisting(
             Guid id,
             DateTimeOffset createdAt,
+            DateTimeOffset? updatedAt,
             string eventType,
             string payload,
             OutboxMessageStatus status,
@@ -70,6 +74,7 @@ namespace YummyAnimeNotifier.Domain.Entities
             {
                 Id = id,
                 CreatedAt = createdAt,
+                UpdateddAt = updatedAt,
                 EventType = eventType,
                 Payload = payload,
                 Status = status,

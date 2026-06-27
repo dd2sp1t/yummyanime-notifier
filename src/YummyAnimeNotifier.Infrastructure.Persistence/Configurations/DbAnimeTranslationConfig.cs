@@ -27,6 +27,11 @@ public class DbAnimeTranslationConfig : IEntityTypeConfiguration<DbAnimeTranslat
         builder.Property(t => t.ReleasedEpisodes)
             .IsRequired();
 
+        builder.Property(e => e.Version)
+            .IsConcurrencyToken()
+            .IsRequired()
+            .HasDefaultValue(0);
+
         builder.HasOne(t => t.Anime)
             .WithMany(a => a.AnimeTranslations)
             .HasForeignKey(t => t.AnimeId);

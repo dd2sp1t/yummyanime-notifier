@@ -7,12 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using YummyAnimeNotifier.Application.YummyAnime;
-using YummyAnimeNotifier.Application.Markers;
 using YummyAnimeNotifier.Application.Consumer.Notifications.Senders;
 
 namespace YummyAnimeNotifier.Application.Consumer.Notifications.Commands.NotifyUsers;
 
-public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>, IConsumerAssemblyMarker
+public class NotifyUsersHandler : IRequestHandler<NotifyUsersCommand, Unit>
 {
     private readonly IAnimeRepository _animeRepository;
     private readonly ISubscriptionRepository _subscriptionRepository;

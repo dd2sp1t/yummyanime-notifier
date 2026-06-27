@@ -8,11 +8,10 @@ using YummyAnimeNotifier.Application.YummyAnime.Mappers;
 using YummyAnimeNotifier.Domain.Enums;
 using YummyAnimeNotifier.Application.YummyAnime.Mappers.Models;
 using YummyAnimeNotifier.Application.YummyAnime.Exceptions;
-using YummyAnimeNotifier.Application.Markers;
 
 namespace YummyAnimeNotifier.Application.Consumer.Anime.Commands.LoadAnimeTranslations;
 
-public class LoadAnimeTranslationsHandler : IRequestHandler<LoadAnimeTranslationsCommand, Unit>, IWorkerAssemblyMarker
+public class LoadAnimeTranslationsHandler : IRequestHandler<LoadAnimeTranslationsCommand, Unit>
 {
     private readonly IYummyAnimeClient _yummyAnimeClient;
     private readonly IAnimeTranslationParser _animeTranslationParser;

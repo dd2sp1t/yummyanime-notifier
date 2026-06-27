@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using YummyAnimeNotifier.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using YummyAnimeNotifier.Infrastructure.Persistence;
 namespace YummyAnimeNotifier.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(YummyAnimeDbContext))]
-    partial class YummyAnimeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260627160832_AnimeTranslationVersionMigration")]
+    partial class AnimeTranslationVersionMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");

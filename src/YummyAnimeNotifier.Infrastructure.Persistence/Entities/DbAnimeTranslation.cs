@@ -11,6 +11,7 @@ public class DbAnimeTranslation
     public AnimeTranslationStatus Status { get; set; }
     public int? TotalEpisodes { get; set; }
     public int ReleasedEpisodes { get; set; }
+    public int Version { get; set; }
 
     public DbAnime Anime { get; set; }
     public DbTranslationSource TranslationSource { get; set; }

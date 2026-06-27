@@ -2,11 +2,10 @@ using YummyAnimeNotifier.Application.Events;
 using YummyAnimeNotifier.Application.Persistence;
 using YummyAnimeNotifier.Application.Persistence.Repositories;
 using MediatR;
-using YummyAnimeNotifier.Application.Markers;
 
 namespace YummyAnimeNotifier.Application.Worker.Commands.PublishOutboxMessages;
 
-public class PublishOutboxMessagesHandler : IRequestHandler<PublishOutboxMessagesCommand, Unit>, IWorkerAssemblyMarker
+public class PublishOutboxMessagesHandler : IRequestHandler<PublishOutboxMessagesCommand, Unit>
 {
     // TODO: use IOptions
     private const int MaxCount = 50;

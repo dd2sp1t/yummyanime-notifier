@@ -66,6 +66,7 @@ internal class OutboxMessageRepository : IOutboxMessageRepository
 
             dbMessage.Status = domainMessage.Status;
             dbMessage.Error = domainMessage.Error;
+            dbMessage.UpdatedAt = domainMessage.UpdateddAt;
         }
     }
 
@@ -79,7 +80,7 @@ internal class OutboxMessageRepository : IOutboxMessageRepository
             // Convert the values to a supported type, or use LINQ to Objects to order the results on the client side.
             // .OrderBy(m => m.CreatedAt)
             .Take(maxCount)
-            .Select(m => OutboxMessage.FromExisting(m.Id, m.CreatedAt, m.EventType, m.Payload, m.Status, m.Error))
+            .Select(m => OutboxMessage.FromExisting(m.Id, m.CreatedAt, m.UpdatedAt, m.EventType, m.Payload, m.Status, m.Error))
             .ToArrayAsync(cancellationToken);
 
         return messages;

@@ -135,5 +135,6 @@ internal class AnimeTranslationRepository : IAnimeTranslationRepository
         dbTranslation.ReleasedEpisodes = translation.ReleasedEpisodes;
         dbTranslation.Status = translation.Status;
         dbTranslation.UpdatedAt = translation.UpdatedAt;
+        dbTranslation.Version++;
     }
 }

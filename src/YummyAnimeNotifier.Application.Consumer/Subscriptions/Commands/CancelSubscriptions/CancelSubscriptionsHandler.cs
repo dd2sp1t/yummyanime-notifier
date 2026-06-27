@@ -1,10 +1,9 @@
 using YummyAnimeNotifier.Application.Persistence.Repositories;
 using MediatR;
-using YummyAnimeNotifier.Application.Markers;
 
 namespace YummyAnimeNotifier.Application.Consumer.Subscriptions.Commands.CancelSubscriptions;
 
-public class CancelSubscriptionsHandler : IRequestHandler<CancelSubscriptionsCommand, Unit>, IConsumerAssemblyMarker
+public class CancelSubscriptionsHandler : IRequestHandler<CancelSubscriptionsCommand, Unit>
 {
     private readonly ISubscriptionRepository _subscriptionRepository;
 
