@@ -35,7 +35,6 @@ public class UpdateAnimeTranslationHandler : IRequestHandler<UpdateAnimeTranslat
             release.TranslationSourceId,
             cancellationToken);
 
-        // TODO: fix race
         var updated = animeTranslation.TryUpdateReleasedEpisodes(release.EpisodeNumber);
 
         if (updated == false)
